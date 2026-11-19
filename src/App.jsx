@@ -53,7 +53,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-app text-ink">
-      <NavBar view={view} onNavigate={setView} />
+      <NavBar view={view} onNavigate={setView} hideBottomNav={view === 'log-bedtime'} />
       <main className="relative mx-auto max-w-2xl px-4 pb-28 pt-6 md:ml-60 md:max-w-none md:px-10 md:pb-12">
         <button
           onClick={() => setView('settings')}

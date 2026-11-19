@@ -63,12 +63,7 @@ export default function LogScreen({ view, onNavigate, entries, timer, setTimer }
   }
 
   if (view === 'log-bedtime') {
-    return (
-      <>
-        <PageHeader title="Log bedtime" onBack={() => onNavigate('log')} />
-        <BedtimeForm onSave={save} />
-      </>
-    )
+    return <BedtimeForm onSave={save} onCancel={() => onNavigate('log')} />
   }
 
   if (view === 'log-timer') {

@@ -36,7 +36,7 @@ function TabButton({ item, active, onNavigate }) {
 }
 
 // Sidebar on desktop, bottom tab bar on phones
-export default function NavBar({ view, onNavigate }) {
+export default function NavBar({ view, onNavigate, hideBottomNav = false }) {
   const active = view.startsWith('log') ? 'log' : view
 
   return (
@@ -68,30 +68,31 @@ export default function NavBar({ view, onNavigate }) {
         <p className="mt-auto px-2 text-xs text-muted">Personal tracking tool — not medical advice</p>
       </aside>
 
-      {/* Phone bottom tab bar: floating Log button in the middle */}
-      <nav
-        aria-label="Main"
-        className="safe-bottom fixed inset-x-0 bottom-0 z-40 flex items-end rounded-t-3xl bg-card px-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:hidden"
-      >
-        {LEFT.map((item) => (
-          <TabButton key={item.id} item={item} active={active === item.id} onNavigate={onNavigate} />
-        ))}
-        <div className="relative h-16 w-24 shrink-0">
-          <button
-            onClick={() => onNavigate('log')}
-            aria-label="Log"
-            aria-current={active === 'log' ? 'page' : undefined}
-            className={`log-fab absolute left-1/2 flex items-center justify-center text-white ${
-              active === 'log' ? 'log-fab-active' : ''
-            }`}
-          >
-            <Plus size={30} aria-hidden />
-          </button>
-        </div>
-        {RIGHT.map((item) => (
-          <TabButton key={item.id} item={item} active={active === item.id} onNavigate={onNavigate} />
-        ))}
-      </nav>
+      {!hideBottomNav && (
+        <nav
+          aria-label="Main"
+          className="safe-bottom fixed inset-x-0 bottom-0 z-40 flex items-end rounded-t-3xl bg-card px-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:hidden"
+        >
+          {LEFT.map((item) => (
+            <TabButton key={item.id} item={item} active={active === item.id} onNavigate={onNavigate} />
+          ))}
+          <div className="relative h-16 w-24 shrink-0">
+            <button
+              onClick={() => onNavigate('log')}
+              aria-label="Log"
+              aria-current={active === 'log' ? 'page' : undefined}
+              className={`log-fab absolute left-1/2 flex items-center justify-center text-white ${
+                active === 'log' ? 'log-fab-active' : ''
+              }`}
+            >
+              <Plus size={30} aria-hidden />
+            </button>
+          </div>
+          {RIGHT.map((item) => (
+            <TabButton key={item.id} item={item} active={active === item.id} onNavigate={onNavigate} />
+          ))}
+        </nav>
+      )}
     </>
   )
 }
