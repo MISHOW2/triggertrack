@@ -4,7 +4,7 @@ import { formatDuration, formatTime } from '../utils/dateUtils'
 // Colour per entry type. Text colours are chosen to stay above WCAG AA on each background.
 const META = {
   meal: { label: 'Meal', Icon: UtensilsCrossed, card: 'bg-sage text-white' },
-  wake: { label: 'Wake-up', Icon: Sun, card: 'bg-amber text-[#1f2d27]' },
+  wake: { label: 'Wake-up', Icon: Sun, card: 'bg-amber text-[#1f2d27] dark:text-white' },
   bedtime: { label: 'Bedtime', Icon: Moon, card: 'bg-teal text-white' },
   symptom: { label: 'Symptom', Icon: Activity, card: 'bg-[#5b4a8a] text-white' },
 }

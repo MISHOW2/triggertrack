@@ -26,22 +26,22 @@
 }
 
 .dark {
-  --app: #121916;
-  --card: #1b2420;
+  --app: #101512;
+  --card: #1a231f;
   --ink: #e8efe9;
   --muted: #9bb0a0;
-  --line: #2c3a33;
-  --sage: #5d8966;
-  --sage-soft: #243229;
-  --amber: #f0ad2e;
-  --amber-soft: #3a3019;
-  --teal: #4b999a;
-  --teal-soft: #1d3434;
+  --line: #303b35;
+  --sage: #557b5e;
+  --sage-soft: #26362d;
+  --amber: #94651a;
+  --amber-soft: #342919;
+  --teal: #397778;
+  --teal-soft: #203839;
   --danger: #ec6b6b;
   --danger-soft: #3a2323;
-  --chip: #26312c;
-  --hero-from: #3a6342;
-  --hero-to: #2b5f60;
+  --chip: #222d27;
+  --hero-from: #2f5a3c;
+  --hero-to: #285054;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -110,6 +110,10 @@ body {
   box-shadow:
     0 10px 24px rgba(34, 67, 57, 0.24),
     0 0 0 3px rgba(86, 127, 93, 0.12);
+}
+
+.dark .log-fab {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.38);
 }
 
 input[type="datetime-local"],
