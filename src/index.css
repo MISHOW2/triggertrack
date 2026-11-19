@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* Colour tokens. Light values live on :root, dark values on .dark.
+   Components use the semantic names (bg-card, text-ink...) so dark mode
+   needs no per-component dark: classes. */
+:root {
+  --app: #fbfaf7;
+  --card: #ffffff;
+  --ink: #30423b;
+  --muted: #7d9785;
+  --line: #eee9df;
+  --sage: #567f5d;
+  --sage-soft: #e5eee7;
+  --amber: #f2a007;
+  --amber-soft: #fff4d8;
+  --teal: #3d8081;
+  --teal-soft: #e4f1f1;
+  --danger: #c93c3c;
+  --danger-soft: #fdeaea;
+  --chip: #f4f1eb;
+}
+
+.dark {
+  --app: #121916;
+  --card: #1b2420;
+  --ink: #e8efe9;
+  --muted: #9bb0a0;
+  --line: #2c3a33;
+  --sage: #5d8966;
+  --sage-soft: #243229;
+  --amber: #f0ad2e;
+  --amber-soft: #3a3019;
+  --teal: #4b999a;
+  --teal-soft: #1d3434;
+  --danger: #ec6b6b;
+  --danger-soft: #3a2323;
+  --chip: #26312c;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-app: var(--app);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-chip: var(--chip);
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--app);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Keep focus visible for keyboard and switch users */
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+/* Space for the phone's bottom tab bar and the iPhone home indicator */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+input[type="datetime-local"],
+input[type="date"] {
+  color-scheme: light;
+}
+.dark input[type="datetime-local"],
+.dark input[type="date"] {
+  color-scheme: dark;
+}
