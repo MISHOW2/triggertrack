@@ -1,10 +1,11 @@
-import { ChartColumn, History, House, Plus, Settings, Heart } from 'lucide-react'
+import { ChartColumn, Clapperboard, History, House, Plus, Settings, Heart } from 'lucide-react'
 
 const ITEMS = [
   { id: 'home', label: 'Home', Icon: House },
   { id: 'log', label: 'Log', Icon: Plus },
   { id: 'history', label: 'History', Icon: History },
   { id: 'insights', label: 'Insights', Icon: ChartColumn },
+  { id: 'videos', label: 'Videos', Icon: Clapperboard },
   { id: 'settings', label: 'Settings', Icon: Settings },
 ]
 

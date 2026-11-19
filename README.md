@@ -26,14 +26,15 @@ Data is stored per device and per browser. Use Settings > Export to back it up.
 src/
   App.jsx                 screen switching, theme, running timer
   components/             NavBar, Modal, EntryCard, TagButton, SeverityPicker...
-  screens/                Home, Log (MealForm, WakeForm, SymptomTimer, SymptomForm), History, Insights, Settings
+  screens/                Home, Log (MealForm, WakeForm, SymptomTimer, SymptomForm), History, Insights, Videos, Settings
   hooks/                  useLocalStorage, useEntries
   data/storage.js         the ONLY file that touches localStorage (+ export, sample data)
-  utils/                  constants (tag lists), dateUtils, insights (the maths)
+  utils/                  constants, dateUtils, insights, videoList (curated videos)
 ```
 
 ## Things to know
 
+- The Videos screen starts with an empty curated catalog in `src/utils/videoList.js`. Add reviewed YouTube video IDs with a title, channel, and stable channel key. Videos are not loaded until someone taps Play; channel follows stay on that device. See [the video-library system-design decision](docs/system-design-decisions.md).
 - The symptom timer saves its start time, so it stays correct if the phone locks or you close the app.
 - Insights counts, for each trigger tag, how many meals were followed by a symptom episode within 4 hours (`TRIGGER_WINDOW_HOURS` in `src/utils/constants.js`). It is a clue, not proof.
 - Edit the trigger / symptom lists in `src/utils/constants.js`.

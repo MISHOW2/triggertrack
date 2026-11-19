@@ -5,6 +5,7 @@ import LogScreen from './screens/LogScreen'
 import HistoryScreen from './screens/HistoryScreen'
 import InsightsScreen from './screens/InsightsScreen'
 import SettingsScreen from './screens/SettingsScreen'
+import VideosScreen from './screens/VideosScreen'
 import useEntries from './hooks/useEntries'
 import useLocalStorage from './hooks/useLocalStorage'
 import { KEYS } from './data/storage'
@@ -36,6 +37,7 @@ export default function App() {
   else if (view === 'history')
     screen = <HistoryScreen entries={entries.entries} updateEntry={entries.updateEntry} deleteEntry={entries.deleteEntry} />
   else if (view === 'insights') screen = <InsightsScreen entries={entries.entries} />
+  else if (view === 'videos') screen = <VideosScreen />
   else
     screen = (
       <SettingsScreen
