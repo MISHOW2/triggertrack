@@ -1,16 +1,19 @@
-import { Activity, Clock, Pencil, Sun, Trash2, UtensilsCrossed } from 'lucide-react'
+import { Activity, Clock, Moon, Pencil, Sun, Trash2, UtensilsCrossed } from 'lucide-react'
 import { formatDuration, formatTime } from '../utils/dateUtils'
+import { BEDTIME_DIGESTION_STATES, BEDTIME_STRESS_LEVELS } from '../utils/constants'
 import SeverityBadge from './SeverityBadge'
 
 const META = {
   meal: { label: 'Meal', Icon: UtensilsCrossed, tile: 'bg-sage-soft text-sage' },
   wake: { label: 'Wake-up', Icon: Sun, tile: 'bg-amber-soft text-amber' },
+  bedtime: { label: 'Bedtime', Icon: Moon, tile: 'bg-teal-soft text-teal' },
   symptom: { label: 'Symptom', Icon: Activity, tile: 'bg-teal-soft text-teal' },
 }
 
 function titleFor(entry) {
   if (entry.type === 'meal') return entry.name
   if (entry.type === 'wake') return `Woke at ${formatTime(entry.timestamp)}`
+  if (entry.type === 'bedtime') return 'Bedtime'
   return entry.symptomType
 }
 
@@ -50,7 +53,9 @@ export default function EntryCard({ entry, compact = false, onEdit, onDelete }) 
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <p className="font-medium">{titleFor(entry)}</p>
-            {(entry.type === 'symptom' || entry.type === 'wake') && <SeverityBadge level={entry.severity} />}
+            {(entry.type === 'symptom' || entry.type === 'wake' || (entry.type === 'bedtime' && entry.symptoms?.length > 0)) && (
+              <SeverityBadge level={entry.severity} />
+            )}
           </div>
 
           {entry.type === 'meal' && entry.tags?.length > 0 && (
@@ -64,6 +69,17 @@ export default function EntryCard({ entry, compact = false, onEdit, onDelete }) 
           )}
           {entry.type === 'wake' && entry.symptoms?.length > 0 && (
             <p className="mt-1 text-sm text-muted">Symptoms: {entry.symptoms.map((s) => s.toLowerCase()).join(', ')}</p>
+          )}
+          {entry.type === 'bedtime' && (
+            <div className="mt-1 space-y-1 text-sm text-muted">
+              <p>Symptoms before bed: {entry.symptoms?.length ? entry.symptoms.join(', ') : 'None noted'}</p>
+              <p>
+                Stress: {BEDTIME_STRESS_LEVELS.find((level) => level.value === entry.stressLevel)?.label ?? 'Not recorded'}
+              </p>
+              <p>
+                Digestion: {BEDTIME_DIGESTION_STATES.find((state) => state.value === entry.digestionState)?.label ?? 'Not recorded'}
+              </p>
+            </div>
           )}
           {entry.type === 'symptom' && (
             <p className="mt-1 text-sm text-muted">Lasted {formatDuration(entry.durationMin)}</p>

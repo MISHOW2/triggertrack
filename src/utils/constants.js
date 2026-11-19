@@ -33,6 +33,22 @@ export const SYMPTOM_TYPES = [
   'Lump in throat',
 ]
 
+export const BEDTIME_STRESS_LEVELS = [
+  { value: 1, label: 'Very relaxed' },
+  { value: 2, label: 'Relaxed' },
+  { value: 3, label: 'Neutral' },
+  { value: 4, label: 'Stressed' },
+  { value: 5, label: 'Very stressed' },
+]
+
+export const BEDTIME_DIGESTION_STATES = [
+  { value: 'comfortable', label: 'Comfortable' },
+  { value: 'slightly-full', label: 'Slightly full' },
+  { value: 'very-full', label: 'Very full' },
+  { value: 'uncomfortable', label: 'Uncomfortable' },
+  { value: 'not-sure', label: 'Not sure' },
+]
+
 // 0 is only used for wake-ups ("woke with no symptoms")
 export const SEVERITY_LABELS = {
   0: 'None',

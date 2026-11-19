@@ -26,13 +26,17 @@ Updated backlog order:
 
 1. Doctor report: a one-page summary to print or save as a PDF.
 2. Curated video library (manually reviewed videos; local-only in the current app).
-3. Medication log and bedtime details.
+3. Medication log and remaining bedtime details, such as bed position. A basic bedtime check-in is now available locally.
 4. Reminders for logging and medication.
 5. Smarter insights.
 6. Periodic symptom questionnaire.
 7. Sleep data import.
 
 The current hand-curated, device-local implementation does not add a backend. Defer syncing follows and fetching titles through an API until Phase 2 and its preceding roadmap gates are met.
+
+## Bedtime check-in
+
+The local bedtime entry records its timestamp, pre-sleep symptoms and severity, a stress/relaxation level, a digestion/fullness state, and an optional note. These are self-reported observations, not diagnoses or evidence that a specific factor caused symptoms.
 
 ## Revisit when
 

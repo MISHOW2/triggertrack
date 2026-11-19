@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Activity, ChevronRight, Sun, UtensilsCrossed } from 'lucide-react'
+import { Activity, ChevronRight, Moon, Sun, UtensilsCrossed } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
+import BedtimeForm from './BedtimeForm'
 import MealForm from './MealForm'
 import WakeForm from './WakeForm'
 import SymptomForm from './SymptomForm'
@@ -9,6 +10,7 @@ import SymptomTimer from './SymptomTimer'
 export const LOG_OPTIONS = [
   { id: 'log-meal', title: 'Log a meal', sub: 'Food, trigger tags, and notes', Icon: UtensilsCrossed, color: 'bg-sage' },
   { id: 'log-wake', title: 'Log wake-up', sub: 'Wake time and morning symptoms', Icon: Sun, color: 'bg-amber' },
+  { id: 'log-bedtime', title: 'Log bedtime', sub: 'Time and how you feel before sleep', Icon: Moon, color: 'bg-teal' },
   { id: 'log-timer', title: 'Start symptom timer', sub: 'Track how long a flare-up lasts', Icon: Activity, color: 'bg-teal' },
 ]
 
@@ -56,6 +58,15 @@ export default function LogScreen({ view, onNavigate, entries, timer, setTimer }
       <>
         <PageHeader title="Log wake-up" onBack={() => onNavigate('log')} />
         <WakeForm onSave={save} />
+      </>
+    )
+  }
+
+  if (view === 'log-bedtime') {
+    return (
+      <>
+        <PageHeader title="Log bedtime" onBack={() => onNavigate('log')} />
+        <BedtimeForm onSave={save} />
       </>
     )
   }

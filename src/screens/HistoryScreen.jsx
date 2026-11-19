@@ -6,6 +6,7 @@ import Modal from '../components/Modal'
 import MealForm from './MealForm'
 import WakeForm from './WakeForm'
 import SymptomForm from './SymptomForm'
+import BedtimeForm from './BedtimeForm'
 import { dayLabel, isSameDay } from '../utils/dateUtils'
 import { inputClass } from '../components/fields'
 
@@ -13,6 +14,7 @@ const FILTERS = [
   { id: 'all', label: 'All' },
   { id: 'meal', label: 'Meals' },
   { id: 'wake', label: 'Wake-ups' },
+  { id: 'bedtime', label: 'Bedtimes' },
   { id: 'symptom', label: 'Symptoms' },
 ]
 
@@ -83,7 +85,7 @@ export default function HistoryScreen({ entries, updateEntry, deleteEntry }) {
 
       {groups.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line p-6 text-center text-sm text-muted">
-          {entries.length === 0 ? 'No entries yet. Log your first meal, wake-up or symptom episode.' : 'No entries match this filter.'}
+          {entries.length === 0 ? 'No entries yet. Log your first meal, wake-up, bedtime or symptom episode.' : 'No entries match this filter.'}
         </p>
       ) : (
         groups.map((g) => (
@@ -103,6 +105,7 @@ export default function HistoryScreen({ entries, updateEntry, deleteEntry }) {
           {editing.type === 'meal' && <MealForm initial={editing} onSave={onSave} submitLabel="Save changes" />}
           {editing.type === 'wake' && <WakeForm initial={editing} onSave={onSave} submitLabel="Save changes" />}
           {editing.type === 'symptom' && <SymptomForm initial={editing} onSave={onSave} submitLabel="Save changes" />}
+          {editing.type === 'bedtime' && <BedtimeForm initial={editing} onSave={onSave} submitLabel="Save changes" />}
         </Modal>
       )}
     </>

@@ -1,4 +1,4 @@
-import { Activity, Sun, UtensilsCrossed } from 'lucide-react'
+import { Activity, Moon, Sun, UtensilsCrossed } from 'lucide-react'
 import { Logo } from '../components/NavBar'
 import EntryCard from '../components/EntryCard'
 import SeverityBadge from '../components/SeverityBadge'
@@ -11,6 +11,7 @@ export default function HomeScreen({ entries, timer, onNavigate }) {
 
   const meals = todays.filter((e) => e.type === 'meal')
   const wake = todays.find((e) => e.type === 'wake') // entries are newest-first
+  const bedtime = todays.find((e) => e.type === 'bedtime') // entries are newest-first
   const episodes = todays.filter((e) => e.type === 'symptom')
   const episodeMinutes = episodes.reduce((sum, e) => sum + (e.durationMin || 0), 0)
 
@@ -30,9 +31,10 @@ export default function HomeScreen({ entries, timer, onNavigate }) {
 
       <section className="mb-6 rounded-3xl border border-line bg-card p-4" aria-label="Today at a glance">
         <h2 className="mb-3 font-semibold">Today at a glance</h2>
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
           <Stat Icon={UtensilsCrossed} tone="bg-chip" value={meals.length} label={meals.length === 1 ? 'meal logged' : 'meals logged'} />
           <Stat Icon={Sun} tone="bg-amber-soft" value={wake ? formatTime(wake.timestamp) : '—'} label="wake time" small />
+          <Stat Icon={Moon} tone="bg-teal-soft" value={bedtime ? formatTime(bedtime.timestamp) : '—'} label="bedtime" small />
           <Stat
             Icon={Activity}
             tone="bg-teal-soft"
