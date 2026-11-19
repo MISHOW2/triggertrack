@@ -9,6 +9,32 @@ const ITEMS = [
   { id: 'settings', label: 'Settings', Icon: Settings },
 ]
 
+// Settings lives in a gear at the top right on phones, so the bar stays roomy
+const LEFT = ITEMS.filter((i) => ['home', 'history'].includes(i.id))
+const RIGHT = ITEMS.filter((i) => ['insights', 'videos'].includes(i.id))
+
+function TabButton({ item, active, onNavigate }) {
+  const { id, label, Icon } = item
+  return (
+    <button
+      onClick={() => onNavigate(id)}
+      aria-current={active ? 'page' : undefined}
+      className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium ${
+        active ? 'text-sage' : 'text-muted'
+      }`}
+    >
+      <span
+        className={`flex h-8 w-14 items-center justify-center rounded-full transition-colors duration-200 ${
+          active ? 'bg-sage-soft' : 'bg-transparent'
+        }`}
+      >
+        <Icon size={22} aria-hidden />
+      </span>
+      {label}
+    </button>
+  )
+}
+
 // Sidebar on desktop, bottom tab bar on phones
 export default function NavBar({ view, onNavigate }) {
   const active = view.startsWith('log') ? 'log' : view
@@ -42,23 +68,28 @@ export default function NavBar({ view, onNavigate }) {
         <p className="mt-auto px-2 text-xs text-muted">Personal tracking tool — not medical advice</p>
       </aside>
 
-      {/* Phone bottom tab bar */}
+      {/* Phone bottom tab bar: floating Log button in the middle */}
       <nav
         aria-label="Main"
-        className="safe-bottom fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-card md:hidden"
+        className="safe-bottom fixed inset-x-0 bottom-0 z-40 flex items-end rounded-t-3xl bg-card px-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:hidden"
       >
-        {ITEMS.map(({ id, label, Icon }) => (
+        {LEFT.map((item) => (
+          <TabButton key={item.id} item={item} active={active === item.id} onNavigate={onNavigate} />
+        ))}
+        <div className="relative h-16 w-24 shrink-0">
           <button
-            key={id}
-            onClick={() => onNavigate(id)}
-            aria-current={active === id ? 'page' : undefined}
-            className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-xs font-medium ${
-              active === id ? 'text-sage' : 'text-muted'
+            onClick={() => onNavigate('log')}
+            aria-label="Log"
+            aria-current={active === 'log' ? 'page' : undefined}
+            className={`log-fab absolute left-1/2 flex items-center justify-center text-white ${
+              active === 'log' ? 'log-fab-active' : ''
             }`}
           >
-            <Icon size={22} aria-hidden />
-            {label}
+            <Plus size={30} aria-hidden />
           </button>
+        </div>
+        {RIGHT.map((item) => (
+          <TabButton key={item.id} item={item} active={active === item.id} onNavigate={onNavigate} />
         ))}
       </nav>
     </>

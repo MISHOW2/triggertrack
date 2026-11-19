@@ -1,6 +1,6 @@
 import { Activity, Moon, Sun, UtensilsCrossed } from 'lucide-react'
 import { Logo } from '../components/NavBar'
-import EntryCard from '../components/EntryCard'
+import TodayCarousel from '../components/TodayCarousel'
 import SeverityBadge from '../components/SeverityBadge'
 import { ActionButton, LOG_OPTIONS } from './LogScreen'
 import { formatDuration, formatTime, isSameDay } from '../utils/dateUtils'
@@ -29,22 +29,22 @@ export default function HomeScreen({ entries, timer, onNavigate }) {
         </div>
       </header>
 
-      <section className="mb-6 rounded-3xl border border-line bg-card p-4" aria-label="Today at a glance">
-        <h2 className="mb-3 font-semibold">Today at a glance</h2>
+      <section className="hero-bg mb-6 rounded-[2rem] p-5 text-white shadow-lg" aria-label="Today at a glance">
+        <h2 className="mb-4 text-lg font-bold">Today at a glance</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
-          <Stat Icon={UtensilsCrossed} tone="bg-chip" value={meals.length} label={meals.length === 1 ? 'meal logged' : 'meals logged'} />
-          <Stat Icon={Sun} tone="bg-amber-soft" value={wake ? formatTime(wake.timestamp) : '—'} label="wake time" small />
-          <Stat Icon={Moon} tone="bg-teal-soft" value={bedtime ? formatTime(bedtime.timestamp) : '—'} label="bedtime" small />
+          <Stat Icon={UtensilsCrossed} tone="bg-black/15" value={meals.length} label={meals.length === 1 ? 'meal logged' : 'meals logged'} />
+          <Stat Icon={Sun} tone="bg-black/15" value={wake ? formatTime(wake.timestamp) : '—'} label="wake time" small />
+          <Stat Icon={Moon} tone="bg-black/15" value={bedtime ? formatTime(bedtime.timestamp) : '—'} label="bedtime" small />
           <Stat
             Icon={Activity}
-            tone="bg-teal-soft"
+            tone="bg-black/15"
             value={episodes.length}
             label={episodes.length ? formatDuration(episodeMinutes) : 'episodes'}
           />
         </div>
         {wake && (
-          <div className="mt-3 flex items-center gap-2 rounded-xl bg-chip px-3 py-2 text-sm">
-            <span className="text-muted">Symptoms on waking:</span>
+          <div className="mt-3 flex items-center gap-2 rounded-xl bg-black/15 px-3 py-2 text-sm">
+            <span>Symptoms on waking:</span>
             <SeverityBadge level={wake.severity} />
           </div>
         )}
@@ -57,17 +57,15 @@ export default function HomeScreen({ entries, timer, onNavigate }) {
         ))}
       </div>
 
-      <h2 className="mb-3 font-semibold text-muted">Today's log</h2>
       {todays.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-line p-5 text-center text-sm text-muted">
-          Nothing logged yet today. Tap a quick action above to start.
-        </p>
+        <>
+          <h2 className="mb-3 font-semibold text-muted">Today's log</h2>
+          <p className="rounded-2xl border border-dashed border-line p-5 text-center text-sm text-muted">
+            Nothing logged yet today. Tap a quick action above to start.
+          </p>
+        </>
       ) : (
-        <div className="flex flex-col gap-2">
-          {todays.map((e) => (
-            <EntryCard key={e.id} entry={e} compact />
-          ))}
-        </div>
+        <TodayCarousel entries={todays} onSeeAll={() => onNavigate('history')} />
       )}
     </>
   )
@@ -76,9 +74,9 @@ export default function HomeScreen({ entries, timer, onNavigate }) {
 function Stat({ Icon, tone, value, label, small }) {
   return (
     <div className={`rounded-2xl p-3 ${tone}`}>
-      <Icon size={17} className="mb-2 text-muted" aria-hidden />
+      <Icon size={17} className="mb-2" aria-hidden />
       <p className={`font-bold leading-none ${small ? 'text-lg sm:text-2xl' : 'text-2xl'}`}>{value}</p>
-      <p className="mt-1 text-xs text-muted">{label}</p>
+      <p className="mt-1 text-xs">{label}</p>
     </div>
   )
 }
