@@ -5,7 +5,7 @@ import ConfirmSheet from '../components/ConfirmSheet'
 import { useSync, POLICY_VERSION } from '../context/SyncContext'
 
 const POINTS = [
-  { Icon: User, tone: 'bg-sage-soft text-sage', title: 'Only you can access your diary', sub: 'Your data is private and yours.' },
+  { Icon: User, tone: 'bg-sage-soft text-sage', title: 'Your diary stays on this device', sub: 'Cloud sync is not connected yet.' },
   { Icon: Wifi, tone: 'bg-teal-soft text-teal', title: 'Log even without a connection', sub: 'Your entries are saved on this phone too.' },
   { Icon: Download, tone: 'bg-amber-soft text-amber', title: 'Export or delete your data', sub: "You're always in control." },
 ]
@@ -26,7 +26,9 @@ export default function ConsentScreen({ onNavigate, firstRun = false }) {
           <ShieldCheck size={38} aria-hidden />
         </div>
         <h2 className="text-2xl font-bold">Your health data, your choice</h2>
-        <p className="mt-2 max-w-sm text-sm text-muted">TriggerTrack stores your meals and symptoms to keep your diary available across devices.</p>
+        <p className="mt-2 max-w-sm text-sm text-muted">
+          Your diary is saved on this device. Cloud sync is not connected, so your entries are not uploaded or available across devices.
+        </p>
       </div>
 
       <ul className="mb-4 divide-y divide-line rounded-3xl border border-line bg-card px-4">
@@ -53,9 +55,9 @@ export default function ConsentScreen({ onNavigate, firstRun = false }) {
       {enabled ? (
         <>
           <section className="mb-4 rounded-3xl bg-sage-soft p-4">
-            <h2 className="font-bold text-sage">Sync is on</h2>
+            <h2 className="font-bold text-sage">Demo consent is on</h2>
             <p className="mt-1 text-sm text-muted">
-              You agreed on {new Date(consent.at).toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' })} (policy version {consent.version}).
+              You agreed on {new Date(consent.at).toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' })} (policy version {consent.version}). No server is connected, so your diary stays on this device.
             </p>
           </section>
           <button onClick={() => setConfirmOff(true)} className="min-h-12 w-full rounded-xl border-2 border-sage font-semibold text-sage">
@@ -69,7 +71,7 @@ export default function ConsentScreen({ onNavigate, firstRun = false }) {
         <>
           <label className="mb-4 flex items-start gap-3 text-sm">
             <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 h-6 w-6 shrink-0 accent-[var(--sage)]" />
-            <span>I agree to the storage and syncing of my health diary as described in the privacy policy.</span>
+            <span>I understand this is a demo consent flow. No data will be uploaded or synced because no server is connected.</span>
           </label>
           <button
             disabled={!agreed}

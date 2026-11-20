@@ -26,7 +26,7 @@ export default function WelcomeScreen({ firstRun, onStart, onFeedback, onBack })
       <section className="mb-5 rounded-3xl bg-sage-soft p-4">
         <h2 className="font-bold text-sage">Your data in the beta</h2>
         <p className="mt-1 text-sm text-muted">
-          If you agree, your diary is synced and backed up. Delete your account and everything goes with it. If you don&apos;t, it stays on this phone.
+          Cloud sync is not connected yet. Your diary stays on this phone and is not uploaded or backed up. The consent screen previews the planned sync flow.
         </p>
       </section>
 

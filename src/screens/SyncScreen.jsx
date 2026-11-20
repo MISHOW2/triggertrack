@@ -30,7 +30,11 @@ const LEGEND = [
 
 export default function SyncScreen({ onNavigate }) {
   const { status, pending, pendingCount, syncingIds, lastSyncedAt, online, syncNow, isMock, enabled } = useSync()
-  const head = HEADLINES[status] || HEADLINES.idle
+  const head = isMock && enabled
+    ? status === 'syncing'
+      ? { ...HEADLINES.syncing, title: 'Previewing sync…', sub: 'Nothing is being uploaded.' }
+      : { ...HEADLINES.idle, title: 'Demo ready', sub: 'No server is connected; entries stay on this phone.' }
+    : HEADLINES[status] || HEADLINES.idle
   const { Icon } = head
 
   return (
