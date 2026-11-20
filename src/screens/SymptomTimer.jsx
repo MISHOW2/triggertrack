@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Play, Square } from 'lucide-react'
+import { ChevronUp, Play, Plus, Square, Timer } from 'lucide-react'
 import SeverityPicker from '../components/SeverityPicker'
 import TagButton from '../components/TagButton'
 import { Field } from '../components/fields'
@@ -15,6 +15,7 @@ export default function SymptomTimer({ timer, setTimer, onSaveEpisode, onDone })
   const [severity, setSeverity] = useState(timer?.severity ?? 3)
   const [notes, setNotes] = useState(timer?.notes ?? '')
   const [saved, setSaved] = useState(null)
+  const [detailsOpen, setDetailsOpen] = useState(false)
 
   const running = Boolean(timer)
 
@@ -69,45 +70,61 @@ export default function SymptomTimer({ timer, setTimer, onSaveEpisode, onDone })
 
   return (
     <div>
-      <div
-        className={`mb-6 rounded-3xl p-6 text-center text-white ${running ? 'bg-teal' : 'bg-sage'}`}
-        role="timer"
-        aria-live="off"
-      >
-        <p className="text-sm font-medium opacity-90">{running ? 'Symptoms are being timed' : 'Ready when a flare-up starts'}</p>
-        <p className="my-3 font-mono text-5xl font-bold tabular-nums">{formatClock(elapsedSeconds)}</p>
-        {running ? (
-          <button
-            onClick={stop}
-            className="mx-auto flex min-h-14 w-full max-w-xs items-center justify-center gap-2 rounded-2xl bg-white text-lg font-bold text-ink"
-          >
-            <Square size={20} fill="currentColor" aria-hidden /> Stop and save
-          </button>
-        ) : (
-          <button
-            onClick={start}
-            className="mx-auto flex min-h-14 w-full max-w-xs items-center justify-center gap-2 rounded-2xl bg-white text-lg font-bold text-ink"
-          >
-            <Play size={20} fill="currentColor" aria-hidden /> Start timer
-          </button>
-        )}
+      <div className="mb-6 rounded-[2rem] border border-line bg-sage-soft px-5 py-8 text-center sm:px-8">
+        <p className="mb-5 text-sm font-medium text-muted">
+          {running ? 'Symptoms are being timed' : 'Ready when you are'}
+        </p>
+        <div className="mx-auto flex h-36 w-36 items-center justify-center rounded-full border-4 border-sage/30 text-sage">
+          <Timer size={43} strokeWidth={1.8} aria-hidden />
+        </div>
+        <p className="mt-5 font-mono text-4xl font-bold tabular-nums tracking-wider text-sage sm:text-5xl" role="timer" aria-live="off">
+          {formatClock(elapsedSeconds)}
+        </p>
+        <button
+          type="button"
+          onClick={running ? stop : start}
+          aria-label={running ? 'Stop and save symptom timer' : 'Start symptom timer'}
+          className="mx-auto mt-5 flex h-[68px] w-[68px] items-center justify-center rounded-full bg-teal text-white shadow-md transition-transform hover:scale-105 active:scale-95"
+        >
+          {running ? <Square size={24} fill="currentColor" aria-hidden /> : <Play size={25} fill="currentColor" aria-hidden />}
+        </button>
+        <p className="mt-3 text-sm font-medium text-muted">{running ? 'Tap to stop and save' : 'Tap to start'}</p>
       </div>
 
-      <Field label="Main symptom">
-        <div className="flex flex-wrap gap-2">
-          {SYMPTOM_TYPES.map((t) => (
-            <TagButton key={t} label={t} selected={symptomType === t} onToggle={() => setSymptomType(t)} />
-          ))}
-        </div>
-      </Field>
+      <section className="overflow-hidden rounded-3xl border border-line bg-sage-soft">
+        <button
+          type="button"
+          onClick={() => setDetailsOpen((open) => !open)}
+          aria-expanded={detailsOpen}
+          className="flex min-h-20 w-full items-center gap-3 px-5 py-4 text-left"
+        >
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">Add details <span className="font-normal text-muted">(optional)</span></span>
+            <span className="mt-1 block text-sm text-muted">Symptom type, severity, and a note</span>
+          </span>
+          {detailsOpen ? <ChevronUp size={21} className="text-sage" aria-hidden /> : <Plus size={21} className="text-sage" aria-hidden />}
+        </button>
 
-      <Field label="Severity">
-        <SeverityPicker value={severity} onChange={setSeverity} />
-      </Field>
+        {detailsOpen && (
+          <div className="border-t border-line px-5 pt-5">
+            <Field label="Main symptom">
+              <div className="flex flex-wrap gap-2">
+                {SYMPTOM_TYPES.map((t) => (
+                  <TagButton key={t} label={t} selected={symptomType === t} onToggle={() => setSymptomType(t)} />
+                ))}
+              </div>
+            </Field>
 
-      <Field label="Note (optional)" htmlFor="timer-notes">
-        <textarea id="timer-notes" rows={2} className={`${inputClass} py-3`} value={notes} onChange={(e) => setNotes(e.target.value)} />
-      </Field>
+            <Field label="Severity">
+              <SeverityPicker value={severity} onChange={setSeverity} />
+            </Field>
+
+            <Field label="Note (optional)" htmlFor="timer-notes">
+              <textarea id="timer-notes" rows={2} className={`${inputClass} py-3`} value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </Field>
+          </div>
+        )}
+      </section>
 
       {running && (
         <button onClick={cancel} className="min-h-11 w-full text-sm font-medium text-muted hover:underline">
