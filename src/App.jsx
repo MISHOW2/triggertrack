@@ -142,7 +142,7 @@ export default function App() {
   else if (view === 'privacy-policy') screen = <PolicyScreen onNavigate={navigate} />
   else if (view === 'your-data') screen = <YourDataScreen entries={entries.entries} onClearLocal={entries.clearLocal} onNavigate={navigate} />
   else if (view === 'medications') screen = <MedicationsScreen onNavigate={navigate} />
-  else if (view === 'report-options') screen = <ReportOptionsScreen onNavigate={navigate} />
+  else if (view === 'report-options') screen = <ReportOptionsScreen entries={entries.entries} onNavigate={navigate} />
   else if (view === 'report') screen = <ReportScreen entries={entries.entries} onNavigate={navigate} />
   else if (view === 'reminders') screen = <RemindersScreen onNavigate={navigate} />
   else if (view === 'questionnaire') screen = <QuestionnaireScreen onNavigate={navigate} />
@@ -172,7 +172,7 @@ export default function App() {
             onClick={() => navigate('settings')}
             aria-label="Settings"
             aria-current={tab === 'settings' ? 'page' : undefined}
-            className={`no-print absolute right-4 top-4 z-30 flex h-12 w-12 items-center justify-center rounded-full md:hidden ${
+            className={`absolute right-4 top-4 z-30 flex h-12 w-12 items-center justify-center rounded-full md:hidden ${
               tab === 'settings' ? 'bg-sage-soft text-sage' : 'bg-card text-muted shadow-sm'
             }`}
           >

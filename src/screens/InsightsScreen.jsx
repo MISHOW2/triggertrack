@@ -53,7 +53,7 @@ const EXPLORE_PATTERNS = [
 
 const EXPLORE_TOOLS = [
   { id: 'questionnaire', Icon: ClipboardList, tone: 'bg-teal-soft text-teal', title: 'Weekly check-in', sub: 'Nine quick questions, once a week' },
-  { id: 'report-options', Icon: FileText, tone: 'bg-sage-soft text-sage', title: 'Doctor report', sub: 'A one-page summary to print or save as PDF' },
+  { id: 'report-options', Icon: FileText, tone: 'bg-sage-soft text-sage', title: 'Doctor report', sub: 'Preview and download your report' },
   { id: 'medications', Icon: Pill, tone: 'bg-amber-soft text-amber', title: 'Medications', sub: 'Doses next to your entries' },
 ]
 
@@ -501,7 +501,7 @@ export default function InsightsScreen({ entries, onNavigate, latestScore }) {
             <FileText size={17} aria-hidden />
           </span>
           <span className="block font-bold">Doctor report</span>
-          <span className="mt-1 block truncate text-xs text-muted">Print or save as PDF</span>
+          <span className="mt-1 block truncate text-xs text-muted">Preview and download as PDF</span>
         </button>
       </div>
 

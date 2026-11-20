@@ -49,7 +49,7 @@ src/
 - **Offline-first storage:** entries live in IndexedDB; old localStorage entries migrate once on first load.
 - **Sync (Phase 2):** per-entry status, offline banner on Home, Sync details screen, soft deletes. `src/data/remote.js` is a stand-in that always succeeds, so nothing leaves the phone until you replace it.
 - **Privacy (Phase 3):** consent screen (versioned), plain-language policy draft (needs legal review), Your data (export, clear this phone, delete account).
-- **Backlog features:** medication log, doctor report (print / save as PDF), insights confidence + time of day + safe foods, reminders, weekly questionnaire (9-item RSI, wording in `src/utils/questionnaire.js`).
+- **Backlog features:** medication log, doctor report (downloadable PDF), insights confidence + time of day + safe foods, reminders, weekly questionnaire (9-item RSI, wording in `src/utils/questionnaire.js`).
 - **Beta:** welcome screen, feedback queue, sleep import (manual entry works; Health Connect needs the Android app, see `src/data/sleepSource.js`).
 
 ### To connect a real backend

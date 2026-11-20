@@ -186,36 +186,3 @@ input[type="date"] {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
-/* ---- Printing (doctor report): plain black on white, no navigation ---- */
-@media print {
-  aside,
-  nav,
-  .no-print {
-    display: none !important;
-  }
-  main {
-    margin: 0 !important;
-    max-width: none !important;
-    padding: 0 !important;
-  }
-  html,
-  html.dark {
-    --app: #fff;
-    --card: #fff;
-    --ink: #111;
-    --muted: #444;
-    --line: #ccc;
-    --sage: #2f5a3a;
-    --sage-soft: #fff;
-    --chip: #e8e8e8;
-    --amber: #7a4b00;
-    --amber-soft: #fff;
-  }
-  body {
-    background: #fff !important;
-  }
-  .screen-enter > * {
-    animation: none !important;
-  }
-}

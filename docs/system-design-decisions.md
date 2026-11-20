@@ -24,7 +24,7 @@ The Videos screen provides topic filters, search, thumbnail cards, channel follo
 
 Updated backlog order:
 
-1. Doctor report: a one-page summary to print or save as a PDF.
+1. Doctor report: a one-page summary downloadable as a PDF.
 2. Curated video library (manually reviewed videos; local-only in the current app).
 3. Medication log and remaining bedtime details, such as bed position. A basic bedtime check-in is now available locally.
 4. Reminders for logging and medication.

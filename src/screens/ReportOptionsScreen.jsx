@@ -1,9 +1,13 @@
-import { Eye, Printer } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Download, Eye } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import { ToggleRow } from '../components/Toggle'
 import useLocalStorage from '../hooks/useLocalStorage'
 import { KEYS } from '../data/storage'
-import { DEFAULT_REPORT_OPTIONS, PRESETS } from '../utils/reportData'
+import { TRIGGER_WINDOW_HOURS } from '../utils/constants'
+import { RSI_MAX } from '../utils/questionnaire'
+import { DEFAULT_REPORT_OPTIONS, buildReport, PRESETS } from '../utils/reportData'
+import { downloadReportPdf } from '../utils/reportPdf'
 import { toDateInput } from '../utils/dateUtils'
 import { inputClass } from '../components/fields'
 
@@ -15,13 +19,36 @@ const INCLUDE = [
   ['scores', 'Questionnaire scores'],
 ]
 
-export default function ReportOptionsScreen({ onNavigate }) {
+export default function ReportOptionsScreen({ entries, onNavigate }) {
   const [options, setOptions] = useLocalStorage(KEYS.reportRange, DEFAULT_REPORT_OPTIONS)
+  const [meds] = useLocalStorage(KEYS.meds, [])
+  const [medLogs] = useLocalStorage(KEYS.medLogs, [])
+  const [scores] = useLocalStorage(KEYS.questionnaire, [])
   const today = toDateInput(new Date())
   const set = (patch) => setOptions((prev) => ({ ...DEFAULT_REPORT_OPTIONS, ...prev, ...patch }))
   const toggle = (key) => set({ include: { ...DEFAULT_REPORT_OPTIONS.include, ...options.include, [key]: !(options.include ?? DEFAULT_REPORT_OPTIONS.include)[key] } })
   const include = { ...DEFAULT_REPORT_OPTIONS.include, ...options.include }
+  const reportOptions = { ...DEFAULT_REPORT_OPTIONS, ...options, include }
   const customIncomplete = options.preset === 'custom' && !options.from
+  const [downloading, setDownloading] = useState(false)
+  const [downloadError, setDownloadError] = useState('')
+  const report = useMemo(
+    () => buildReport({ entries, options: reportOptions, meds, medLogs, scores }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [entries, options, meds, medLogs, scores],
+  )
+  const downloadReport = async () => {
+    setDownloading(true)
+    setDownloadError('')
+    try {
+      await downloadReportPdf({ report, include, triggerWindowHours: TRIGGER_WINDOW_HOURS, rsiMax: RSI_MAX })
+    } catch (error) {
+      console.error('Failed to create doctor report PDF', error)
+      setDownloadError('The PDF could not be created. Please try again.')
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   return (
     <>
@@ -79,15 +106,13 @@ export default function ReportOptionsScreen({ onNavigate }) {
         <Eye size={18} aria-hidden /> Preview report
       </button>
       <button
-        onClick={() => {
-          onNavigate('report')
-          setTimeout(() => window.print(), 400)
-        }}
-        disabled={customIncomplete}
+        onClick={downloadReport}
+        disabled={customIncomplete || downloading}
         className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-sage font-bold text-sage disabled:opacity-40"
       >
-        <Printer size={18} aria-hidden /> Share / save as PDF…
+        <Download size={18} aria-hidden /> {downloading ? 'Preparing PDF…' : 'Download PDF'}
       </button>
+      {downloadError && <p role="alert" className="mt-2 text-sm text-red-700">{downloadError}</p>}
     </>
   )
 }

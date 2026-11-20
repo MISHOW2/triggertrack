@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { Printer, ShieldAlert } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Download, ShieldAlert } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import useLocalStorage from '../hooks/useLocalStorage'
 import { KEYS } from '../data/storage'
@@ -7,13 +7,14 @@ import { DEFAULT_REPORT_OPTIONS, buildReport } from '../utils/reportData'
 import { formatDuration } from '../utils/dateUtils'
 import { TRIGGER_WINDOW_HOURS } from '../utils/constants'
 import { RSI_MAX } from '../utils/questionnaire'
+import { downloadReportPdf } from '../utils/reportPdf'
 
 const fmtDate = (d) => d.toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' })
 const TREND_TEXT = { lower: 'Wake-up severity has been lower recently', higher: 'Wake-up severity has been higher recently', steady: 'Wake-up severity is about the same' }
 
 function Section({ title, children }) {
   return (
-    <section className="mb-4 break-inside-avoid rounded-3xl border border-line bg-card p-4">
+    <section className="mb-4 rounded-3xl border border-line bg-card p-4">
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{title}</h2>
       {children}
     </section>
@@ -25,6 +26,8 @@ export default function ReportScreen({ entries, onNavigate }) {
   const [meds] = useLocalStorage(KEYS.meds, [])
   const [medLogs] = useLocalStorage(KEYS.medLogs, [])
   const [scores] = useLocalStorage(KEYS.questionnaire, [])
+  const [downloading, setDownloading] = useState(false)
+  const [downloadError, setDownloadError] = useState('')
   const options = { ...DEFAULT_REPORT_OPTIONS, ...stored, include: { ...DEFAULT_REPORT_OPTIONS.include, ...stored.include } }
   const inc = options.include
 
@@ -35,18 +38,22 @@ export default function ReportScreen({ entries, onNavigate }) {
   )
   const { data, tags, meds: medRows } = report
   const maxTag = Math.max(1, ...tags.list.map((t) => t.episodes))
+  const downloadReport = async () => {
+    setDownloading(true)
+    setDownloadError('')
+    try {
+      await downloadReportPdf({ report, include: inc, triggerWindowHours: TRIGGER_WINDOW_HOURS, rsiMax: RSI_MAX })
+    } catch (error) {
+      console.error('Failed to create doctor report PDF', error)
+      setDownloadError('The PDF could not be created. Please try again.')
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   return (
-    <div className="print-area">
-      <div className="no-print">
-        <PageHeader title="Doctor report" subtitle={`${fmtDate(report.from)} – ${fmtDate(report.to)}`} onBack={() => onNavigate('report-options')} />
-      </div>
-      <div className="hidden print:block">
-        <h1 className="text-2xl font-bold">TriggerTrack summary</h1>
-        <p className="mb-4 text-sm">
-          {fmtDate(report.from)} – {fmtDate(report.to)} · made {fmtDate(new Date())}
-        </p>
-      </div>
+    <div>
+      <PageHeader title="Doctor report" subtitle={`${fmtDate(report.from)} – ${fmtDate(report.to)}`} onBack={() => onNavigate('report-options')} />
 
       {(inc.episodes || inc.wakes) && (
         <Section title="Summary">
@@ -154,11 +161,13 @@ export default function ReportScreen({ entries, onNavigate }) {
       </section>
 
       <button
-        onClick={() => window.print()}
-        className="no-print flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-sage font-bold text-white"
+        onClick={downloadReport}
+        disabled={downloading}
+        className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-sage font-bold text-white disabled:opacity-40"
       >
-        <Printer size={18} aria-hidden /> Print / Save as PDF
+        <Download size={18} aria-hidden /> {downloading ? 'Preparing PDF…' : 'Download PDF'}
       </button>
+      {downloadError && <p role="alert" className="mt-2 text-sm text-red-700">{downloadError}</p>}
     </div>
   )
 }

@@ -54,7 +54,7 @@ export default function SettingsScreen({ entries, theme, setTheme, onNavigate, o
         <LinkRow Icon={Bell} tone="bg-sage-soft text-sage" title="Reminders" sub="Nudges you control" onClick={() => onNavigate('reminders')} />
         <LinkRow Icon={ClipboardList} tone="bg-teal-soft text-teal" title="Weekly check-in" sub="The questionnaire doctors already use" onClick={() => onNavigate('questionnaire')} />
         <LinkRow Icon={Moon} tone="bg-teal-soft text-teal" title="Sleep import" sub="Nights next to your episodes" onClick={() => onNavigate('sleep-import')} />
-        <LinkRow Icon={FileText} tone="bg-sage-soft text-sage" title="Doctor report" sub="One page, print or PDF" onClick={() => onNavigate('report-options')} />
+        <LinkRow Icon={FileText} tone="bg-sage-soft text-sage" title="Doctor report" sub="One-page PDF download" onClick={() => onNavigate('report-options')} />
       </Group>
 
       <Group title="Privacy and sync">
