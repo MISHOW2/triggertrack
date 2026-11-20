@@ -59,15 +59,15 @@ const EXPLORE_TOOLS = [
 
 function ExploreOption({ Icon, tone, title, sub, onClick }) {
   return (
-    <button onClick={onClick} className="flex min-h-12 w-full items-center gap-3 rounded-full bg-card px-3 py-1.5 text-left shadow-sm">
-      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${tone}`}>
-        <Icon size={20} aria-hidden />
+    <button onClick={onClick} className="flex min-h-14 w-full items-center gap-3 rounded-full bg-card px-4 py-2 text-left shadow-sm">
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${tone}`}>
+        <Icon size={22} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold leading-tight">{title}</span>
-        <span className="block truncate text-xs leading-tight text-muted">{sub}</span>
+        <span className="block text-base font-semibold leading-tight">{title}</span>
+        <span className="block truncate text-sm leading-tight text-muted">{sub}</span>
       </span>
-      <ChevronRight size={16} className="shrink-0 text-muted" aria-hidden />
+      <ChevronRight size={18} className="shrink-0 text-muted" aria-hidden />
     </button>
   )
 }
