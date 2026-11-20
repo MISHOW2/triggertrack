@@ -23,7 +23,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#121916' : '#567f5d')
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#121212' : '#567f5d')
   }, [theme])
 
   // Scroll to top when changing screens
@@ -36,7 +36,14 @@ export default function App() {
   else if (view.startsWith('log'))
     screen = <LogScreen view={view} onNavigate={setView} entries={entries} timer={timer} setTimer={setTimer} />
   else if (view === 'history')
-    screen = <HistoryScreen entries={entries.entries} updateEntry={entries.updateEntry} deleteEntry={entries.deleteEntry} />
+    screen = (
+      <HistoryScreen
+        entries={entries.entries}
+        updateEntry={entries.updateEntry}
+        deleteEntry={entries.deleteEntry}
+        onNavigate={setView}
+      />
+    )
   else if (view === 'insights') screen = <InsightsScreen entries={entries.entries} />
   else if (view === 'videos') screen = <VideosScreen />
   else

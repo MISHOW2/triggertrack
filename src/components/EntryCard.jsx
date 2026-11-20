@@ -26,13 +26,66 @@ export default function EntryCard({ entry, compact = false, onEdit, onDelete }) 
       entry.type === 'symptom'
         ? `${formatTime(entry.timestamp)} · ${formatDuration(entry.durationMin)}`
         : formatTime(entry.timestamp)
+    const detail =
+      entry.type === 'meal'
+        ? entry.tags?.join(', ')
+        : entry.type === 'wake'
+          ? entry.symptoms?.join(', ')
+          : entry.type === 'bedtime'
+            ? entry.symptoms?.length
+              ? entry.symptoms.join(', ')
+              : 'No symptoms noted'
+            : `${entry.severity ? `Severity ${entry.severity}` : ''}${entry.durationMin ? ` · Lasted ${formatDuration(entry.durationMin)}` : ''}`
+    const bedtimeStress =
+      entry.type === 'bedtime' ? BEDTIME_STRESS_LEVELS.find((level) => level.value === entry.stressLevel)?.label : null
+    const bedtimeDigestion =
+      entry.type === 'bedtime' ? BEDTIME_DIGESTION_STATES.find((state) => state.value === entry.digestionState)?.label : null
     return (
-      <div className="flex items-center gap-3 rounded-2xl border border-line bg-card px-4 py-3">
-        <Icon size={18} className="shrink-0 text-muted" aria-hidden />
-        <div className="min-w-0">
-          <p className="truncate font-medium">{entry.type === 'wake' ? 'Wake-up' : titleFor(entry)}</p>
-          <p className="text-sm text-muted">{sub}</p>
+      <div className="flex items-start gap-4 rounded-3xl bg-card p-5 shadow-sm">
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${tile}`}>
+          <Icon size={20} aria-hidden />
         </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <p className="truncate font-semibold">{entry.type === 'wake' ? 'Wake-up' : titleFor(entry)}</p>
+            <p className="shrink-0 text-sm text-muted">{sub}</p>
+          </div>
+          {detail && <p className="mt-1 text-sm leading-5 text-muted">{detail}</p>}
+          {(bedtimeStress || bedtimeDigestion || (entry.type === 'wake' && entry.severity > 0)) && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {bedtimeStress && <span className="rounded-full bg-chip px-3 py-1 text-xs font-medium text-ink">{bedtimeStress}</span>}
+              {bedtimeDigestion && (
+                <span className="rounded-full bg-chip px-3 py-1 text-xs font-medium text-ink">{bedtimeDigestion}</span>
+              )}
+              {entry.type === 'wake' && entry.severity > 0 && (
+                <span className="rounded-full bg-chip px-3 py-1 text-xs font-medium text-ink">Severity {entry.severity}</span>
+              )}
+            </div>
+          )}
+          {entry.notes && <p className="mt-1 text-sm text-muted">{entry.notes}</p>}
+        </div>
+        {(onEdit || onDelete) && (
+          <div className="flex shrink-0 flex-col gap-1">
+            {onEdit && (
+              <button
+                onClick={() => onEdit(entry)}
+                aria-label={`Edit ${label.toLowerCase()}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-chip"
+              >
+                <Pencil size={16} aria-hidden />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(entry)}
+                aria-label={`Delete ${label.toLowerCase()}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-danger-soft hover:text-danger"
+              >
+                <Trash2 size={16} aria-hidden />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     )
   }

@@ -63,7 +63,7 @@ export default function BedtimeForm({ initial, onSave, onCancel, submitLabel = i
   }
 
   return (
-    <form onSubmit={handleSubmit} className="min-h-[calc(100dvh-8rem)]">
+    <form onSubmit={handleSubmit} className={isEditing ? '' : 'min-h-[calc(100dvh-8rem)]'}>
       <header className="flex items-center justify-between">
         <button
           type="button"

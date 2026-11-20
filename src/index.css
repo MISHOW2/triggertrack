@@ -26,22 +26,22 @@
 }
 
 .dark {
-  --app: #101512;
-  --card: #1a231f;
-  --ink: #e8efe9;
-  --muted: #9bb0a0;
-  --line: #303b35;
-  --sage: #557b5e;
-  --sage-soft: #26362d;
-  --amber: #94651a;
-  --amber-soft: #342919;
-  --teal: #397778;
-  --teal-soft: #203839;
-  --danger: #ec6b6b;
-  --danger-soft: #3a2323;
-  --chip: #222d27;
-  --hero-from: #2f5a3c;
-  --hero-to: #285054;
+  --app: #121212;
+  --card: #1e1e1e;
+  --ink: #f1f1f1;
+  --muted: #a3a3a3;
+  --line: #303030;
+  --sage: #3f7a58;
+  --sage-soft: #24352a;
+  --amber: #f2b544;
+  --amber-soft: #352b19;
+  --teal: #5b9d9c;
+  --teal-soft: #1f3030;
+  --danger: #ff6b6b;
+  --danger-soft: #382323;
+  --chip: #292929;
+  --hero-from: #244b32;
+  --hero-to: #245653;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
