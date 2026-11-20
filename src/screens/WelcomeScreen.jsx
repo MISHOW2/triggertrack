@@ -1,11 +1,16 @@
+import { ArrowLeft } from 'lucide-react'
 import { Logo } from '../components/NavBar'
 
 export default function WelcomeScreen({ firstRun, onStart, onFeedback, onBack }) {
   return (
     <>
       {onBack && (
-        <button onClick={onBack} className="mb-2 min-h-10 text-sm font-medium text-sage hover:underline">
-          ← Back
+        <button
+          onClick={onBack}
+          aria-label="Go back"
+          className="mb-2 flex h-10 w-10 items-center justify-center rounded-full text-sage hover:bg-sage-soft"
+        >
+          <ArrowLeft size={21} aria-hidden />
         </button>
       )}
       <div className="flex flex-col items-center pb-6 pt-6 text-center">
