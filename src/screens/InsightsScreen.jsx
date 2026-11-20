@@ -369,8 +369,31 @@ export default function InsightsScreen({ entries, onNavigate, latestScore }) {
 
   useEffect(() => {
     if (!exploreOpen && !activeInsight) return undefined
-    const previousOverflow = document.body.style.overflow
+    const scrollY = window.scrollY
+    const bodyStyles = {
+      position: document.body.style.position,
+      top: document.body.style.top,
+      left: document.body.style.left,
+      right: document.body.style.right,
+      width: document.body.style.width,
+      overflow: document.body.style.overflow,
+      overscrollBehavior: document.body.style.overscrollBehavior,
+    }
+    const rootStyles = {
+      overflow: document.documentElement.style.overflow,
+      overscrollBehavior: document.documentElement.style.overscrollBehavior,
+    }
+
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.left = '0'
+    document.body.style.right = '0'
+    document.body.style.width = '100%'
     document.body.style.overflow = 'hidden'
+    document.body.style.overscrollBehavior = 'none'
+    document.documentElement.style.overflow = 'hidden'
+    document.documentElement.style.overscrollBehavior = 'none'
+
     const closeOnEscape = (event) => {
       if (event.key === 'Escape') {
         if (activeInsight) setActiveInsight(null)
@@ -379,7 +402,9 @@ export default function InsightsScreen({ entries, onNavigate, latestScore }) {
     }
     window.addEventListener('keydown', closeOnEscape)
     return () => {
-      document.body.style.overflow = previousOverflow
+      Object.assign(document.body.style, bodyStyles)
+      Object.assign(document.documentElement.style, rootStyles)
+      window.scrollTo(0, scrollY)
       window.removeEventListener('keydown', closeOnEscape)
     }
   }, [activeInsight, exploreOpen])
@@ -496,8 +521,8 @@ export default function InsightsScreen({ entries, onNavigate, latestScore }) {
 
       {!activeInsight && (
         <button
-          onClick={() => setExploreOpen(true)}
-          aria-label="Explore insights"
+          onClick={() => setExploreOpen((open) => !open)}
+          aria-label={exploreOpen ? 'Close Explore menu' : 'Explore insights'}
           aria-haspopup="dialog"
           aria-expanded={exploreOpen}
           className={`fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-[70] flex min-h-14 items-center justify-center rounded-full bg-gradient-to-br from-sage to-teal font-semibold text-white shadow-[0_8px_24px_rgba(34,67,57,0.28)] md:bottom-8 md:right-8 ${
