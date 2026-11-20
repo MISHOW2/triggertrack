@@ -49,8 +49,6 @@ const EXPLORE_PATTERNS = [
   { id: 'safe-foods', Icon: Leaf, tone: 'bg-sage-soft text-sage', title: 'Your safe foods', sub: 'Logged often, never followed by an episode' },
   { id: 'wake-severity', Icon: Sun, tone: 'bg-amber-soft text-amber', title: 'Wake time vs. severity', sub: 'Your logged wake times and symptom severity' },
   { id: 'weekly-trend', Icon: TrendingUp, tone: 'bg-sage-soft text-sage', title: 'Weekly trend', sub: 'Meals and symptom episodes, day by day' },
-  { id: 'food-patterns', Icon: Flame, tone: 'bg-teal-soft text-teal', title: 'Foods before flare-ups', sub: 'Meals before symptom episodes' },
-  { id: 'duration', Icon: Clock, tone: 'bg-amber-soft text-amber', title: 'Episode duration', sub: 'Average and longest episode' },
 ]
 
 const EXPLORE_TOOLS = [
@@ -61,15 +59,15 @@ const EXPLORE_TOOLS = [
 
 function ExploreOption({ Icon, tone, title, sub, onClick }) {
   return (
-    <button onClick={onClick} className="flex min-h-14 w-full items-center gap-3 rounded-full bg-card px-3 py-2 text-left shadow-sm">
-      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${tone}`}>
+    <button onClick={onClick} className="flex min-h-12 w-full items-center gap-3 rounded-full bg-card px-3 py-1.5 text-left shadow-sm">
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${tone}`}>
         <Icon size={20} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block font-semibold leading-tight">{title}</span>
-        <span className="block truncate text-sm text-muted">{sub}</span>
+        <span className="block text-sm font-semibold leading-tight">{title}</span>
+        <span className="block truncate text-xs leading-tight text-muted">{sub}</span>
       </span>
-      <ChevronRight size={17} className="shrink-0 text-muted" aria-hidden />
+      <ChevronRight size={16} className="shrink-0 text-muted" aria-hidden />
     </button>
   )
 }
@@ -77,7 +75,7 @@ function ExploreOption({ Icon, tone, title, sub, onClick }) {
 function ExploreMenu({ onClose, onSelectPattern, onNavigate, latestScore }) {
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/35 px-4 pb-[calc(10.5rem+env(safe-area-inset-bottom))] pt-8 backdrop-blur-sm md:items-center md:pb-8"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/35 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-4 backdrop-blur-sm md:items-center md:pb-8"
       role="dialog"
       aria-modal="true"
       aria-label="Explore insights"
@@ -85,7 +83,7 @@ function ExploreMenu({ onClose, onSelectPattern, onNavigate, latestScore }) {
         if (event.target === event.currentTarget) onClose()
       }}
     >
-      <div className="max-h-[calc(100dvh-12rem)] w-full max-w-sm overflow-y-auto">
+      <div className="max-h-[calc(100dvh-8rem)] w-full max-w-sm overflow-y-auto">
         <div className="mb-2 flex justify-end">
           <span className="rounded-full bg-card px-3 py-1 text-xs font-bold uppercase tracking-wide text-sage">Patterns</span>
         </div>
@@ -130,75 +128,7 @@ function InsightSheet({ insightId, data, onClose, onNavigate }) {
   let action
   let content
 
-  if (insightId === 'food-patterns') {
-    if (data.foods.length === 0) {
-      action = { label: 'Log a meal', view: 'log-meal' }
-      content = (
-        <EmptyInsight Icon={Flame} tone="bg-teal-soft text-teal">
-          No tagged meals were followed by a flare-up in this period.
-        </EmptyInsight>
-      )
-    } else {
-      content = (
-        <>
-          <ul className="space-y-3">
-            {data.foods.map((food) => (
-              <li key={food.tag}>
-                <div className="mb-1 flex flex-wrap items-center justify-between gap-2 text-sm">
-                  <span className="font-medium">{food.tag}</span>
-                  <span className="flex items-center gap-2">
-                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${CONFIDENCE[food.confidence].cls}`}>
-                      {CONFIDENCE[food.confidence].label}
-                    </span>
-                    <span className="text-muted">
-                      {food.followed} of {food.eaten} {food.eaten === 1 ? 'time' : 'times'}
-                    </span>
-                  </span>
-                </div>
-                <div className="h-2.5 rounded-full bg-chip" role="presentation">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-sage to-teal"
-                    style={{ width: `${(food.followed / maxFollowed) * 100}%` }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-xs text-muted">
-            A food showing up here is a clue, not proof. A few episodes can look like a pattern by chance, so keep logging and compare over several weeks.
-          </p>
-        </>
-      )
-    }
-  } else if (insightId === 'duration') {
-    if (data.episodeCount === 0) {
-      action = { label: 'Start symptom timer', view: 'log-timer' }
-      content = (
-        <EmptyInsight Icon={Clock} tone="bg-amber-soft text-amber">
-          Log symptom episodes to see your average and longest episode.
-        </EmptyInsight>
-      )
-    } else {
-      content = (
-        <div className="grid grid-cols-2 gap-3">
-          <section className="rounded-3xl border border-line bg-card p-4">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-sage-soft text-sage">
-              <Clock size={19} aria-hidden />
-            </div>
-            <p className="text-2xl font-bold">{formatDuration(data.avgDuration)}</p>
-            <p className="text-sm text-muted">avg symptom duration</p>
-          </section>
-          <section className="rounded-3xl border border-line bg-card p-4">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-soft text-amber">
-              <Award size={19} aria-hidden />
-            </div>
-            <p className="text-2xl font-bold">{formatDuration(data.longest)}</p>
-            <p className="text-sm text-muted">longest episode</p>
-          </section>
-        </div>
-      )
-    }
-  } else if (insightId === 'time-of-day') {
+  if (insightId === 'time-of-day') {
     if (data.episodeCount === 0) {
       action = { label: 'Start symptom timer', view: 'log-timer' }
       content = (
@@ -208,44 +138,105 @@ function InsightSheet({ insightId, data, onClose, onNavigate }) {
       )
     } else {
       content = (
-        <ul className="space-y-2 rounded-3xl border border-line bg-card p-4">
-          {data.timeOfDay.map((bucket) => (
-            <li key={bucket.id} className="flex items-center gap-3 text-sm">
-              <span className="w-12 shrink-0 text-muted">{bucket.label}</span>
-              <div className="h-3 flex-1 rounded-full bg-chip" role="presentation">
-                <div
-                  className={`h-full rounded-full ${bucket.count === maxBucket ? 'bg-sage' : 'bg-sage/50'}`}
-                  style={{ width: `${(bucket.count / maxBucket) * 100}%` }}
-                />
-              </div>
-              <span className="w-6 shrink-0 text-right font-semibold">{bucket.count}</span>
-            </li>
-          ))}
-        </ul>
-      )
-    }
-  } else if (insightId === 'safe-foods') {
-    if (data.safeFoods.length === 0) {
-      action = { label: 'Log a meal', view: 'log-meal' }
-      content = (
-        <EmptyInsight Icon={Leaf} tone="bg-sage-soft text-sage">
-          A food appears here after you log it {SAFE_FOOD_MIN_LOGS}+ times in this period without an episode starting within {TRIGGER_WINDOW_HOURS} hours.
-        </EmptyInsight>
-      )
-    } else {
-      content = (
-        <div className="rounded-3xl border border-line bg-card p-4">
-          <ul className="flex flex-wrap gap-2">
-            {data.safeFoods.map((food) => (
-              <li key={food.name} className="rounded-full bg-sage-soft px-3 py-1.5 text-sm font-semibold text-sage">
-                {food.name} <span className="font-normal text-muted">· {food.count}×</span>
+        <>
+          <ul className="space-y-2 rounded-3xl border border-line bg-card p-4">
+            {data.timeOfDay.map((bucket) => (
+              <li key={bucket.id} className="flex items-center gap-3 text-sm">
+                <span className="w-12 shrink-0 text-muted">{bucket.label}</span>
+                <div className="h-3 flex-1 rounded-full bg-chip" role="presentation">
+                  <div
+                    className={`h-full rounded-full ${bucket.count === maxBucket ? 'bg-sage' : 'bg-sage/50'}`}
+                    style={{ width: `${(bucket.count / maxBucket) * 100}%` }}
+                  />
+                </div>
+                <span className="w-6 shrink-0 text-right font-semibold">{bucket.count}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-xs text-muted">Not a guarantee. A food with no flare-ups so far can still bother you another day.</p>
-        </div>
+          <section className="mt-4">
+            <h3 className="mb-2 text-sm font-semibold text-muted">Episode duration</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-3xl border border-line bg-card p-4">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-sage-soft text-sage">
+                  <Clock size={19} aria-hidden />
+                </div>
+                <p className="text-2xl font-bold">{formatDuration(data.avgDuration)}</p>
+                <p className="text-sm text-muted">avg symptom duration</p>
+              </div>
+              <div className="rounded-3xl border border-line bg-card p-4">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-soft text-amber">
+                  <Award size={19} aria-hidden />
+                </div>
+                <p className="text-2xl font-bold">{formatDuration(data.longest)}</p>
+                <p className="text-sm text-muted">longest episode</p>
+              </div>
+            </div>
+          </section>
+        </>
       )
     }
+  } else if (insightId === 'safe-foods') {
+    if (data.safeFoods.length === 0 && data.foods.length === 0) {
+      action = { label: 'Log a meal', view: 'log-meal' }
+    }
+    content = (
+      <div className="space-y-4">
+        <section className="rounded-3xl border border-line bg-card p-4">
+          <h3 className="mb-3 font-semibold">Your safe foods</h3>
+          {data.safeFoods.length ? (
+            <ul className="flex flex-wrap gap-2">
+              {data.safeFoods.map((food) => (
+                <li key={food.name} className="rounded-full bg-sage-soft px-3 py-1.5 text-sm font-semibold text-sage">
+                  {food.name} <span className="font-normal text-muted">· {food.count}×</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted">
+              A food appears here after you log it {SAFE_FOOD_MIN_LOGS}+ times in this period without an episode starting within {TRIGGER_WINDOW_HOURS} hours.
+            </p>
+          )}
+          {data.safeFoods.length > 0 && (
+            <p className="mt-3 text-xs text-muted">Not a guarantee. A food with no flare-ups so far can still bother you another day.</p>
+          )}
+        </section>
+        <section className="rounded-3xl border border-line bg-card p-4">
+          <h3 className="mb-3 flex items-center gap-2 font-semibold">
+            <Flame size={17} className="text-teal" aria-hidden /> Foods before flare-ups
+          </h3>
+          {data.foods.length ? (
+            <ul className="space-y-3">
+              {data.foods.map((food) => (
+                <li key={food.tag}>
+                  <div className="mb-1 flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <span className="font-medium">{food.tag}</span>
+                    <span className="flex items-center gap-2">
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${CONFIDENCE[food.confidence].cls}`}>
+                        {CONFIDENCE[food.confidence].label}
+                      </span>
+                      <span className="text-muted">
+                        {food.followed} of {food.eaten} {food.eaten === 1 ? 'time' : 'times'}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="h-2.5 rounded-full bg-chip" role="presentation">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-sage to-teal"
+                      style={{ width: `${(food.followed / maxFollowed) * 100}%` }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted">No tagged meals were followed by a flare-up in this period.</p>
+          )}
+          <p className="mt-3 text-xs text-muted">
+            A food appearing before a flare-up is a clue, not proof. Patterns can happen by chance.
+          </p>
+        </section>
+      </div>
+    )
   } else if (insightId === 'wake-severity') {
     if (data.wakeSeries.length < 2) {
       action = { label: 'Log a wake-up', view: 'log-wake' }
@@ -525,8 +516,10 @@ export default function InsightsScreen({ entries, onNavigate, latestScore }) {
           aria-label={exploreOpen ? 'Close Explore menu' : 'Explore insights'}
           aria-haspopup="dialog"
           aria-expanded={exploreOpen}
-          className={`fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-[70] flex min-h-14 items-center justify-center rounded-full bg-gradient-to-br from-sage to-teal font-semibold text-white shadow-[0_8px_24px_rgba(34,67,57,0.28)] md:bottom-8 md:right-8 ${
-            exploreOpen ? 'w-14 border-4 border-card p-0' : 'gap-2 px-5'
+          className={`fixed right-4 z-[70] flex min-h-14 items-center justify-center rounded-full bg-gradient-to-br from-sage to-teal font-semibold text-white shadow-[0_8px_24px_rgba(34,67,57,0.28)] md:right-8 ${
+            exploreOpen
+              ? 'bottom-[calc(1rem+env(safe-area-inset-bottom))] w-14 border-4 border-card p-0 md:bottom-8'
+              : 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))] gap-2 px-5 md:bottom-8'
           }`}
         >
           {exploreOpen ? <X size={22} aria-hidden /> : <><Sparkles size={18} aria-hidden />Explore</>}
