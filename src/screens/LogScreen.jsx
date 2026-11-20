@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Activity, ChevronRight, Moon, Sun, UtensilsCrossed } from 'lucide-react'
+import { Activity, ChevronRight, Moon, Save, Sun, UtensilsCrossed, X } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import BedtimeForm from './BedtimeForm'
 import MealForm from './MealForm'
@@ -33,6 +33,22 @@ export function ActionButton({ option, onClick, running }) {
   )
 }
 
+function FormHeader({ title, onClose }) {
+  return (
+    <header className="mb-5 flex items-center justify-between">
+      <h1 className="text-2xl font-bold">{title}</h1>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close"
+        className="flex h-11 w-11 items-center justify-center rounded-full bg-chip text-sage"
+      >
+        <X size={20} aria-hidden />
+      </button>
+    </header>
+  )
+}
+
 // The Log tab: a menu, plus the form for whichever option is picked.
 export default function LogScreen({ view, onNavigate, entries, timer, setTimer }) {
   const { addEntry } = entries
@@ -47,7 +63,7 @@ export default function LogScreen({ view, onNavigate, entries, timer, setTimer }
   if (view === 'log-meal') {
     return (
       <>
-        <PageHeader title="Log a meal" onBack={() => onNavigate('log')} />
+        <FormHeader title="Log a meal" onClose={() => onNavigate('log')} />
         <MealForm onSave={save} />
       </>
     )
@@ -56,7 +72,7 @@ export default function LogScreen({ view, onNavigate, entries, timer, setTimer }
   if (view === 'log-wake') {
     return (
       <>
-        <PageHeader title="Log wake-up" onBack={() => onNavigate('log')} />
+        <FormHeader title="Log wake-up" onClose={() => onNavigate('log')} />
         <WakeForm onSave={save} />
       </>
     )

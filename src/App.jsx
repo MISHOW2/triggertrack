@@ -62,16 +62,18 @@ export default function App() {
     <div className="min-h-screen bg-app text-ink">
       <NavBar view={view} onNavigate={setView} hideBottomNav={view === 'log-bedtime'} />
       <main className="relative mx-auto max-w-2xl px-4 pb-28 pt-6 md:ml-60 md:max-w-none md:px-10 md:pb-12">
-        <button
-          onClick={() => setView('settings')}
-          aria-label="Settings"
-          aria-current={view === 'settings' ? 'page' : undefined}
-          className={`absolute right-4 top-4 z-30 flex h-12 w-12 items-center justify-center rounded-full md:hidden ${
-            view === 'settings' ? 'bg-sage-soft text-sage' : 'bg-card text-muted shadow-sm'
-          }`}
-        >
-          <Settings size={22} aria-hidden />
-        </button>
+        {!view.startsWith('log') && (
+          <button
+            onClick={() => setView('settings')}
+            aria-label="Settings"
+            aria-current={view === 'settings' ? 'page' : undefined}
+            className={`absolute right-4 top-4 z-30 flex h-12 w-12 items-center justify-center rounded-full md:hidden ${
+              view === 'settings' ? 'bg-sage-soft text-sage' : 'bg-card text-muted shadow-sm'
+            }`}
+          >
+            <Settings size={22} aria-hidden />
+          </button>
+        )}
         <div key={view.startsWith('log') ? 'log' : view} className="screen-enter mx-auto max-w-2xl">
           {screen}
         </div>
