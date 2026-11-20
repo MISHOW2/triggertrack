@@ -162,12 +162,17 @@ export default function App() {
 
   const tab = tabFor(view)
   const bare = view === 'welcome' && !onboarded
+  const centeredHome = view === 'home'
 
   return (
     <div className="min-h-screen bg-app text-ink">
-      {!bare && <NavBar view={tab} onNavigate={navigate} hideBottomNav={view === 'log-bedtime'} />}
-      <main className={`relative mx-auto max-w-2xl px-4 pb-28 pt-6 ${bare ? '' : 'md:ml-60 md:max-w-none md:px-10 md:pb-12'}`}>
-        {!view.startsWith('log') && !bare && (
+      {!bare && <NavBar view={tab} onNavigate={navigate} hideBottomNav={view === 'log-bedtime'} centeredHome={centeredHome} />}
+      <main
+        className={`relative mx-auto max-w-2xl px-4 pb-28 pt-6 ${
+          bare ? '' : centeredHome ? 'md:max-w-none md:px-10' : 'md:ml-60 md:max-w-none md:px-10 md:pb-12'
+        }`}
+      >
+        {!view.startsWith('log') && !bare && view !== 'home' && (
           <button
             onClick={() => navigate('settings')}
             aria-label="Settings"

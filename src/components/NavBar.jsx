@@ -35,14 +35,14 @@ function TabButton({ item, active, onNavigate }) {
   )
 }
 
-// Sidebar on desktop, bottom tab bar on phones
-export default function NavBar({ view, onNavigate, hideBottomNav = false }) {
+// Home keeps the mobile-style bottom bar centered at desktop widths to match its dashboard layout.
+export default function NavBar({ view, onNavigate, hideBottomNav = false, centeredHome = false }) {
   const active = view.startsWith('log') ? 'log' : view
 
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-line bg-app p-4 md:flex">
+      <aside className={`fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-line bg-app p-4 ${centeredHome ? '' : 'md:flex'}`}>
         <div className="mb-6 flex items-center gap-3 px-2 pt-2">
           <Logo />
           <div>
@@ -71,7 +71,9 @@ export default function NavBar({ view, onNavigate, hideBottomNav = false }) {
       {!hideBottomNav && (
         <nav
           aria-label="Main"
-          className="safe-bottom fixed inset-x-0 bottom-0 z-40 flex items-end rounded-t-3xl bg-card px-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:hidden"
+          className={`safe-bottom fixed inset-x-0 bottom-0 z-40 mx-auto flex items-end rounded-t-3xl bg-card px-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] ${
+            centeredHome ? 'md:max-w-sm' : 'md:hidden'
+          }`}
         >
           {LEFT.map((item) => (
             <TabButton key={item.id} item={item} active={active === item.id} onNavigate={onNavigate} />
