@@ -3,6 +3,8 @@ import { CalendarDays, ChevronLeft, ChevronRight, Moon, SlidersHorizontal } from
 import PageHeader from '../components/PageHeader'
 import EntryCard from '../components/EntryCard'
 import Modal from '../components/Modal'
+import ConfirmSheet from '../components/ConfirmSheet'
+import { Trash2 } from 'lucide-react'
 import MealForm from './MealForm'
 import WakeForm from './WakeForm'
 import SymptomForm from './SymptomForm'
@@ -25,6 +27,7 @@ export default function HistoryScreen({ entries, updateEntry, deleteEntry, onNav
   const [filter, setFilter] = useState('all')
   const [selectedDate, setSelectedDate] = useState(() => new Date())
   const [editing, setEditing] = useState(null)
+  const [deleting, setDeleting] = useState(null)
   const dayInput = useRef(null)
   const today = new Date()
   const isToday = isSameDay(selectedDate, today)
@@ -46,8 +49,12 @@ export default function HistoryScreen({ entries, updateEntry, deleteEntry, onNav
     })
   }
 
-  const onDelete = (entry) => {
-    if (window.confirm('Delete this entry? This cannot be undone.')) deleteEntry(entry.id)
+  const onDelete = (entry) => setDeleting(entry)
+
+  const confirmDelete = () => {
+    deleteEntry(deleting.id)
+    setDeleting(null)
+    setEditing(null)
   }
 
   const onSave = (changes) => {
@@ -176,7 +183,25 @@ export default function HistoryScreen({ entries, updateEntry, deleteEntry, onNav
           {editing.type === 'wake' && <WakeForm initial={editing} onSave={onSave} submitLabel="Save changes" />}
           {editing.type === 'symptom' && <SymptomForm initial={editing} onSave={onSave} submitLabel="Save changes" />}
           {editing.type === 'bedtime' && <BedtimeForm initial={editing} onSave={onSave} submitLabel="Save changes" />}
+          <button
+            type="button"
+            onClick={() => setDeleting(editing)}
+            className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-danger font-semibold text-danger"
+          >
+            <Trash2 size={18} aria-hidden /> Delete entry
+          </button>
         </Modal>
+      )}
+
+      {deleting && (
+        <ConfirmSheet
+          title="Delete this entry?"
+          body="This removes it from your history and from any synced devices."
+          confirmLabel="Delete entry"
+          cancelLabel="Keep entry"
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleting(null)}
+        />
       )}
     </>
   )

@@ -1,12 +1,25 @@
-// The ONLY file that touches localStorage directly.
-// If you later move to IndexedDB or a backend, change this file and the screens stay the same.
+// Small settings and collections live in localStorage (this file only).
+// Diary entries live in IndexedDB (see db.js and hooks/useEntries.js).
 
 export const KEYS = {
-  entries: 'triggertrack:entries:v1',
+  entries: 'triggertrack:entries:v1', // legacy: read once to migrate into IndexedDB
   timer: 'triggertrack:timer:v1',
   theme: 'triggertrack:theme',
   videoFollows: 'triggertrack:video-follows:v1',
   videoSaved: 'triggertrack:video-saved:v1',
+  consent: 'triggertrack:consent:v1',
+  lastSynced: 'triggertrack:last-synced:v1',
+  onboarded: 'triggertrack:onboarded:v1',
+  meds: 'triggertrack:meds:v1',
+  medLogs: 'triggertrack:med-logs:v1',
+  reminders: 'triggertrack:reminders:v1',
+  remindersDone: 'triggertrack:reminders-done:v1',
+  questionnaire: 'triggertrack:questionnaire:v1',
+  sleepNights: 'triggertrack:sleep-nights:v1',
+  sleepPrefs: 'triggertrack:sleep-prefs:v1',
+  feedback: 'triggertrack:feedback:v1',
+  diagnostics: 'triggertrack:diagnostics:v1',
+  reportRange: 'triggertrack:report-options:v1',
 }
 
 export function readJSON(key, fallback) {
@@ -21,18 +34,48 @@ export function readJSON(key, fallback) {
 export function writeJSON(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value))
+    window.dispatchEvent(new CustomEvent('tt:ls', { detail: key }))
   } catch {
     // Storage full or blocked (private mode). The app keeps working for this session.
   }
+}
+
+export function removeKey(key) {
+  try {
+    localStorage.removeItem(key)
+    window.dispatchEvent(new CustomEvent('tt:ls', { detail: key }))
+  } catch {
+    // ignore
+  }
+}
+
+export function isCloudEnabled() {
+  return readJSON(KEYS.consent, null)?.decision === 'granted'
 }
 
 export function newId() {
   return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
-// Download all entries as a JSON file
+// Everything the person has logged, as one object (used by export and the data screen)
+export function collectExport(entries) {
+  return {
+    app: 'TriggerTrack',
+    exportVersion: 2,
+    exportedAt: new Date().toISOString(),
+    entries: entries.map(({ syncState, deletedAt, ...rest }) => rest),
+    medications: readJSON(KEYS.meds, []),
+    medicationLogs: readJSON(KEYS.medLogs, []),
+    questionnaire: readJSON(KEYS.questionnaire, []),
+    sleepNights: readJSON(KEYS.sleepNights, []),
+    videoFollows: readJSON(KEYS.videoFollows, []),
+    videoSaved: readJSON(KEYS.videoSaved, []),
+  }
+}
+
+// Download everything as a JSON file
 export function exportEntries(entries) {
-  const blob = new Blob([JSON.stringify({ app: 'TriggerTrack', exportedAt: new Date().toISOString(), entries }, null, 2)], {
+  const blob = new Blob([JSON.stringify(collectExport(entries), null, 2)], {
     type: 'application/json',
   })
   const url = URL.createObjectURL(blob)

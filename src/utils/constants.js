@@ -64,3 +64,14 @@ export const TRIGGER_WINDOW_HOURS = 4
 
 // How many days of history the Insights screen looks at
 export const INSIGHT_DAYS = 14
+
+// Insights: how many logs a food needs before it can be listed as "no flare-ups yet"
+export const SAFE_FOOD_MIN_LOGS = 5
+
+// Time-of-day buckets for when episodes start
+export const TIME_BUCKETS = [
+  { id: 'night', label: '0–6', from: 0, to: 6 },
+  { id: 'morning', label: '6–12', from: 6, to: 12 },
+  { id: 'afternoon', label: '12–18', from: 12, to: 18 },
+  { id: 'evening', label: '18–24', from: 18, to: 24 },
+]

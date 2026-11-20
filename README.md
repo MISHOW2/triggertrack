@@ -1,6 +1,6 @@
 # TriggerTrack
 
-Personal reflux / LPR tracker: log meals (with trigger tags), wake-ups, and symptom episodes (with a live timer), then see patterns in Insights. Built with React + Vite + Tailwind as an installable web app (PWA). All data stays in your browser (localStorage). Nothing is sent anywhere.
+Personal reflux / LPR tracker: log meals (with trigger tags), wake-ups, and symptom episodes (with a live timer), then see patterns in Insights. Built with React + Vite + Tailwind as an installable web app (PWA). Entries are saved on the phone first (IndexedDB), so logging works offline. Optional cloud sync is built behind a stand-in remote (`src/data/remote.js`) until a backend exists. Videos contact YouTube only when you tap play.
 
 ## Run it
 
@@ -18,7 +18,7 @@ npm run preview    # serve the production build (needed to test install / offlin
    - Android (Chrome): menu > "Install app" / "Add to Home screen".
    - iPhone (Safari): Share > "Add to Home Screen".
 
-Data is stored per device and per browser. Use Settings > Export to back it up.
+Until sync is connected to a real backend, data is stored per device and per browser. Use Settings > Your data > Export to back it up.
 
 ## Project layout
 
@@ -27,8 +27,11 @@ src/
   App.jsx                 screen switching, theme, running timer
   components/             NavBar, Modal, EntryCard, TagButton, SeverityPicker...
   screens/                Home, Log (MealForm, WakeForm, BedtimeForm, SymptomTimer, SymptomForm), History, Insights, Videos, Settings
-  hooks/                  useLocalStorage, useEntries
-  data/storage.js         the ONLY file that touches localStorage (+ export, sample data)
+  hooks/                  useLocalStorage, useEntries (IndexedDB), useReminders
+  context/SyncContext     consent, online state, outbox sync engine
+  data/db.js              IndexedDB (Dexie): diary entries
+  data/storage.js         localStorage for small settings and collections (+ export, sample data)
+  data/remote.js          the ONLY file that talks to a server (stub for now)
   utils/                  constants, dateUtils, insights, videoList (curated videos)
 ```
 
@@ -40,3 +43,14 @@ src/
 - Insights counts, for each trigger tag, how many meals were followed by a symptom episode within 4 hours (`TRIGGER_WINDOW_HOURS` in `src/utils/constants.js`). It is a clue, not proof.
 - Edit the trigger / symptom lists in `src/utils/constants.js`.
 - Not medical advice.
+
+## Front-end phases (what is built)
+
+- **Offline-first storage:** entries live in IndexedDB; old localStorage entries migrate once on first load.
+- **Sync (Phase 2):** per-entry status, offline banner on Home, Sync details screen, soft deletes. `src/data/remote.js` is a stand-in that always succeeds, so nothing leaves the phone until you replace it.
+- **Privacy (Phase 3):** consent screen (versioned), plain-language policy draft (needs legal review), Your data (export, clear this phone, delete account).
+- **Backlog features:** medication log, doctor report (print / save as PDF), insights confidence + time of day + safe foods, reminders, weekly questionnaire (9-item RSI, wording in `src/utils/questionnaire.js`).
+- **Beta:** welcome screen, feedback queue, sleep import (manual entry works; Health Connect needs the Android app, see `src/data/sleepSource.js`).
+
+### To connect a real backend
+Replace the three functions in `src/data/remote.js` (`push`, `deleteAccount`, `sendFeedback`) and set `isMockRemote = false`. Screens and the sync engine do not change. Reminders on a PWA only show while the app is open; background notifications need the Capacitor app.

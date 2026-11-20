@@ -7,13 +7,43 @@ import HistoryScreen from './screens/HistoryScreen'
 import InsightsScreen from './screens/InsightsScreen'
 import SettingsScreen from './screens/SettingsScreen'
 import VideosScreen from './screens/VideosScreen'
+import SyncScreen from './screens/SyncScreen'
+import ConsentScreen from './screens/ConsentScreen'
+import PolicyScreen from './screens/PolicyScreen'
+import YourDataScreen from './screens/YourDataScreen'
+import MedicationsScreen from './screens/MedicationsScreen'
+import ReportOptionsScreen from './screens/ReportOptionsScreen'
+import ReportScreen from './screens/ReportScreen'
+import RemindersScreen from './screens/RemindersScreen'
+import QuestionnaireScreen from './screens/QuestionnaireScreen'
+import WelcomeScreen from './screens/WelcomeScreen'
+import FeedbackScreen from './screens/FeedbackScreen'
+import SleepImportScreen from './screens/SleepImportScreen'
 import useEntries from './hooks/useEntries'
 import useLocalStorage from './hooks/useLocalStorage'
+import useReminders from './hooks/useReminders'
+import { useSync } from './context/SyncContext'
+import { flushFeedback } from './data/feedbackQueue'
 import { KEYS } from './data/storage'
 
+// Which bottom-bar tab to highlight for each screen
+function tabFor(view) {
+  if (view.startsWith('log')) return 'log'
+  if (['insights', 'questionnaire', 'report-options', 'report'].includes(view)) return 'insights'
+  if (['home', 'history', 'videos', 'medications'].includes(view)) return view === 'medications' ? 'home' : view
+  return 'settings'
+}
+
 export default function App() {
-  const [view, setView] = useState('home')
+  const { consent } = useSync()
+  const [onboarded, setOnboarded] = useLocalStorage(KEYS.onboarded, false)
+  const [view, setView] = useState(onboarded ? 'home' : 'welcome')
+  const [firstRun, setFirstRun] = useState(!onboarded)
+  const [notice, setNotice] = useState(false)
   const entries = useEntries()
+  const [medLogs] = useLocalStorage(KEYS.medLogs, [])
+  const [scores] = useLocalStorage(KEYS.questionnaire, [])
+  const reminders = useReminders(entries.entries, medLogs)
   // The running symptom timer lives here so it survives switching screens and reloads
   const [timer, setTimer] = useLocalStorage(KEYS.timer, null)
   const [theme, setTheme] = useLocalStorage(
@@ -31,44 +61,119 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [view])
 
+  // "Saved on this phone" note on Home after a save
+  useEffect(() => {
+    if (!notice) return undefined
+    const id = setTimeout(() => setNotice(false), 6000)
+    return () => clearTimeout(id)
+  }, [notice])
+
+  // Send any queued feedback when the app opens and when the network returns
+  useEffect(() => {
+    flushFeedback()
+    window.addEventListener('online', flushFeedback)
+    return () => window.removeEventListener('online', flushFeedback)
+  }, [])
+
+  const navigate = (next) => {
+    if (next !== 'privacy') setFirstRun(false)
+    setView(next)
+  }
+
+  const entriesApi = {
+    ...entries,
+    addEntry: (entry) => {
+      entries.addEntry(entry)
+      setNotice(true)
+    },
+  }
+
+  const finishWelcome = () => {
+    setOnboarded(true)
+    if (!consent) {
+      setFirstRun(true)
+      setView('privacy')
+    } else {
+      setFirstRun(false)
+      setView('home')
+    }
+  }
+
   let screen
-  if (view === 'home') screen = <HomeScreen entries={entries.entries} timer={timer} onNavigate={setView} />
+  if (view === 'welcome')
+    screen = (
+      <WelcomeScreen
+        firstRun={!onboarded}
+        onStart={onboarded ? () => navigate('settings') : finishWelcome}
+        onFeedback={() => {
+          setOnboarded(true)
+          navigate('feedback')
+        }}
+        onBack={onboarded ? () => navigate('settings') : undefined}
+      />
+    )
+  else if (view === 'home')
+    screen = (
+      <HomeScreen
+        entries={entries.entries}
+        timer={timer}
+        onNavigate={navigate}
+        notice={notice}
+        due={reminders.due}
+        onDismissReminder={reminders.dismiss}
+      />
+    )
   else if (view.startsWith('log'))
-    screen = <LogScreen view={view} onNavigate={setView} entries={entries} timer={timer} setTimer={setTimer} />
+    screen = <LogScreen view={view} onNavigate={navigate} entries={entriesApi} timer={timer} setTimer={setTimer} />
   else if (view === 'history')
     screen = (
       <HistoryScreen
         entries={entries.entries}
         updateEntry={entries.updateEntry}
         deleteEntry={entries.deleteEntry}
-        onNavigate={setView}
+        onNavigate={navigate}
       />
     )
-  else if (view === 'insights') screen = <InsightsScreen entries={entries.entries} />
+  else if (view === 'insights')
+    screen = <InsightsScreen entries={entries.entries} onNavigate={navigate} latestScore={scores[scores.length - 1]?.total} />
   else if (view === 'videos') screen = <VideosScreen />
+  else if (view === 'sync') screen = <SyncScreen onNavigate={navigate} />
+  else if (view === 'privacy') screen = <ConsentScreen onNavigate={navigate} firstRun={firstRun} />
+  else if (view === 'privacy-policy') screen = <PolicyScreen onNavigate={navigate} />
+  else if (view === 'your-data') screen = <YourDataScreen entries={entries.entries} onClearLocal={entries.clearLocal} onNavigate={navigate} />
+  else if (view === 'medications') screen = <MedicationsScreen onNavigate={navigate} />
+  else if (view === 'report-options') screen = <ReportOptionsScreen onNavigate={navigate} />
+  else if (view === 'report') screen = <ReportScreen entries={entries.entries} onNavigate={navigate} />
+  else if (view === 'reminders') screen = <RemindersScreen onNavigate={navigate} />
+  else if (view === 'questionnaire') screen = <QuestionnaireScreen onNavigate={navigate} />
+  else if (view === 'feedback') screen = <FeedbackScreen onNavigate={navigate} />
+  else if (view === 'sleep-import') screen = <SleepImportScreen entries={entries.entries} onNavigate={navigate} />
   else
     screen = (
       <SettingsScreen
         entries={entries.entries}
         theme={theme}
         setTheme={setTheme}
+        onNavigate={navigate}
         onAddSample={entries.addMany}
         onRemoveSample={() => entries.removeWhere((e) => e.sample)}
-        onClearAll={entries.clearAll}
       />
     )
 
+  const tab = tabFor(view)
+  const bare = view === 'welcome' && !onboarded
+
   return (
     <div className="min-h-screen bg-app text-ink">
-      <NavBar view={view} onNavigate={setView} hideBottomNav={view === 'log-bedtime'} />
-      <main className="relative mx-auto max-w-2xl px-4 pb-28 pt-6 md:ml-60 md:max-w-none md:px-10 md:pb-12">
-        {!view.startsWith('log') && (
+      {!bare && <NavBar view={tab} onNavigate={navigate} hideBottomNav={view === 'log-bedtime'} />}
+      <main className={`relative mx-auto max-w-2xl px-4 pb-28 pt-6 ${bare ? '' : 'md:ml-60 md:max-w-none md:px-10 md:pb-12'}`}>
+        {!view.startsWith('log') && !bare && (
           <button
-            onClick={() => setView('settings')}
+            onClick={() => navigate('settings')}
             aria-label="Settings"
-            aria-current={view === 'settings' ? 'page' : undefined}
-            className={`absolute right-4 top-4 z-30 flex h-12 w-12 items-center justify-center rounded-full md:hidden ${
-              view === 'settings' ? 'bg-sage-soft text-sage' : 'bg-card text-muted shadow-sm'
+            aria-current={tab === 'settings' ? 'page' : undefined}
+            className={`no-print absolute right-4 top-4 z-30 flex h-12 w-12 items-center justify-center rounded-full md:hidden ${
+              tab === 'settings' ? 'bg-sage-soft text-sage' : 'bg-card text-muted shadow-sm'
             }`}
           >
             <Settings size={22} aria-hidden />
