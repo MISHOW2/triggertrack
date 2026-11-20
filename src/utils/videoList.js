@@ -1,3 +1,5 @@
+export const VIDEO_CATEGORIES = ['All', 'Gut health', 'Stress', 'Evening routine', 'Tea']
+
 export const VIDEO_LIST = []
 
 export function validateVideoList(videos) {
@@ -14,10 +16,14 @@ export function validateVideoList(videos) {
       ids.add(id)
     }
 
-    for (const field of ['title', 'channel', 'channelKey']) {
+    for (const field of ['title', 'channel', 'channelKey', 'category']) {
       if (typeof video?.[field] !== 'string' || !video[field].trim()) {
         issues.push(`Video at index ${index} is missing ${field}`)
       }
+    }
+
+    if (video?.thumbnail && (!video.thumbnail.startsWith('/') || video.thumbnail.startsWith('//'))) {
+      issues.push(`Video at index ${index} must use a local thumbnail path`)
     }
   })
 

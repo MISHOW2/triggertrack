@@ -1,16 +1,29 @@
-import { useState } from 'react'
-import { Clapperboard, Play, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Bookmark, BookmarkCheck, Clapperboard, Play, Search, Users, X } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import useLocalStorage from '../hooks/useLocalStorage'
 import { KEYS } from '../data/storage'
-import { VIDEO_LIST } from '../utils/videoList'
+import { VIDEO_CATEGORIES, VIDEO_LIST } from '../utils/videoList'
 
 export default function VideosScreen() {
   const [followedChannels, setFollowedChannels] = useLocalStorage(KEYS.videoFollows, [])
-  const [followingOnly, setFollowingOnly] = useState(false)
+  const [savedVideos, setSavedVideos] = useLocalStorage(KEYS.videoSaved, [])
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [query, setQuery] = useState('')
   const [playingId, setPlayingId] = useState(null)
   const followed = Array.isArray(followedChannels) ? followedChannels : []
-  const visibleVideos = VIDEO_LIST.filter((video) => !followingOnly || followed.includes(video.channelKey))
+  const saved = Array.isArray(savedVideos) ? savedVideos : []
+
+  const visibleVideos = useMemo(() => {
+    const search = query.trim().toLocaleLowerCase()
+    return VIDEO_LIST.filter((video) => {
+      if (selectedCategory !== 'All' && video.category !== selectedCategory) return false
+      if (!search) return true
+      return [video.title, video.channel, video.description, video.category].some((value) =>
+        value?.toLocaleLowerCase().includes(search),
+      )
+    })
+  }, [query, selectedCategory])
 
   const toggleFollow = (channelKey) => {
     setFollowedChannels((current) => {
@@ -19,92 +32,149 @@ export default function VideosScreen() {
     })
   }
 
+  const toggleSaved = (videoId) => {
+    setSavedVideos((current) => {
+      const ids = Array.isArray(current) ? current : []
+      return ids.includes(videoId) ? ids.filter((id) => id !== videoId) : [...ids, videoId]
+    })
+  }
+
   return (
     <>
-      <PageHeader title="Videos" subtitle="Curated videos for learning about reflux and LPR" />
+      <PageHeader title="Videos" subtitle="Hand-picked information for gut health, stress, and evening routines." />
 
-      {VIDEO_LIST.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-line bg-card p-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-sage-soft text-sage">
+      <label className="mb-5 flex min-h-14 items-center gap-3 rounded-full border border-line bg-card px-4 shadow-sm">
+        <Search size={19} className="shrink-0 text-muted" aria-hidden />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search videos"
+          aria-label="Search videos"
+          className="min-w-0 flex-1 bg-transparent text-base text-ink outline-none placeholder:text-muted"
+        />
+      </label>
+
+      <div className="no-scrollbar -mx-4 mb-5 flex snap-x gap-2 overflow-x-auto px-4 pb-1" role="group" aria-label="Filter videos by topic">
+        {VIDEO_CATEGORIES.map((category) => {
+          const selected = selectedCategory === category
+          return (
+            <button
+              key={category}
+              type="button"
+              onClick={() => setSelectedCategory(category)}
+              aria-pressed={selected}
+              className={`min-h-11 shrink-0 snap-start rounded-full border px-4 text-sm font-semibold transition-colors ${
+                selected ? 'border-teal bg-teal text-white' : 'border-line bg-card text-ink'
+              }`}
+            >
+              {category}
+            </button>
+          )
+        })}
+      </div>
+
+      {visibleVideos.length === 0 ? (
+        <section className="rounded-3xl border border-dashed border-line bg-card px-6 py-10 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-teal-soft text-teal">
             <Clapperboard size={22} aria-hidden />
           </div>
-          <h2 className="font-bold">No videos have been added yet</h2>
-          <p className="mt-2 text-sm text-muted">
-            Curated videos will appear here after they have been reviewed. Nothing is loaded from YouTube until you choose to play a
-            video.
+          <h2 className="font-bold">{VIDEO_LIST.length === 0 ? 'No videos have been added yet' : 'No videos found'}</h2>
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted">
+            {VIDEO_LIST.length === 0
+              ? 'Reviewed videos will appear here. The catalog is added by hand, and nothing loads from YouTube until you press play.'
+              : 'Try a different search or topic.'}
           </p>
         </section>
       ) : (
-        <>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-muted">
-              {followed.length} {followed.length === 1 ? 'channel' : 'channels'} followed on this device
-            </p>
-            <button
-              type="button"
-              onClick={() => setFollowingOnly((current) => !current)}
-              aria-pressed={followingOnly}
-              className={`min-h-11 rounded-full border px-4 text-sm font-semibold ${
-                followingOnly ? 'border-sage bg-sage text-white' : 'border-line bg-card text-ink'
-              }`}
-            >
-              {followingOnly ? 'Showing followed' : 'Show followed'}
-            </button>
-          </div>
+        <div className="flex flex-col gap-3">
+          {visibleVideos.map((video) => {
+            const isFollowing = followed.includes(video.channelKey)
+            const isSaved = saved.includes(video.id)
+            const isPlaying = playingId === video.id
 
-          <div className="flex flex-col gap-3">
-            {visibleVideos.map((video) => {
-              const isFollowing = followed.includes(video.channelKey)
-              const isPlaying = playingId === video.id
-
-              return (
-                <article key={video.id} className="overflow-hidden rounded-3xl border border-line bg-card">
-                  <div className="p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted">{video.channel}</p>
-                    <h2 className="mt-1 font-bold">{video.title}</h2>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setPlayingId(isPlaying ? null : video.id)}
-                        className="flex min-h-11 items-center gap-2 rounded-xl bg-sage px-4 font-semibold text-white"
-                      >
-                        {isPlaying ? <X size={17} aria-hidden /> : <Play size={17} aria-hidden />}
-                        {isPlaying ? 'Stop video' : 'Play'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleFollow(video.channelKey)}
-                        aria-pressed={isFollowing}
-                        className="min-h-11 rounded-xl border border-line px-4 text-sm font-semibold text-ink"
-                      >
-                        {isFollowing ? 'Following channel' : 'Follow channel'}
-                      </button>
-                    </div>
-                  </div>
-
-                  {isPlaying && (
-                    <div className="aspect-video bg-black">
-                      <iframe
-                        className="h-full w-full"
-                        src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(video.id)}?autoplay=1`}
-                        title={video.title}
-                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                      />
-                    </div>
+            return (
+              <article key={video.id} className="overflow-hidden rounded-3xl border border-line bg-card shadow-sm">
+                <div className={`relative aspect-video overflow-hidden ${video.thumbnail ? 'bg-chip' : categoryTone(video.category)}`}>
+                  {video.thumbnail && (
+                    <img
+                      src={video.thumbnail}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
                   )}
-                </article>
-              )
-            })}
-          </div>
+                  {isPlaying ? (
+                    <iframe
+                      className="absolute inset-0 h-full w-full"
+                      src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(video.id)}?autoplay=1`}
+                      title={video.title}
+                      allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <>
+                      <span className="absolute left-3 top-3 rounded-full bg-card/90 px-3 py-1 text-xs font-semibold text-ink">
+                        {video.category}
+                      </span>
+                      {video.duration && (
+                        <span className="absolute bottom-3 right-3 rounded-md bg-black/80 px-2 py-1 text-xs font-bold text-white">
+                          {video.duration}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setPlayingId(video.id)}
+                        aria-label={`Play ${video.title}`}
+                        className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-sage shadow-md"
+                      >
+                        <Play size={24} fill="currentColor" aria-hidden />
+                      </button>
+                    </>
+                  )}
+                </div>
 
-          {followingOnly && visibleVideos.length === 0 && (
-            <p className="mt-4 rounded-2xl border border-dashed border-line p-5 text-center text-sm text-muted">
-              No videos from followed channels yet. Follow a channel from any video to see it here.
-            </p>
-          )}
-        </>
+                <div className="p-4">
+                  <h2 className="font-bold">{video.title}</h2>
+                  <p className="mt-1 text-xs font-semibold text-ink">{video.channel}</p>
+                  {video.description && <p className="mt-2 text-sm leading-6 text-muted">{video.description}</p>}
+                </div>
+
+                <div className="flex items-center justify-between border-t border-line px-4 py-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleFollow(video.channelKey)}
+                    aria-pressed={isFollowing}
+                    className="flex min-h-11 items-center gap-2 text-sm font-semibold text-sage"
+                  >
+                    <Users size={17} aria-hidden />
+                    {isFollowing ? 'Following channel' : 'Follow channel'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleSaved(video.id)}
+                    aria-pressed={isSaved}
+                    className="flex min-h-11 items-center gap-2 text-sm font-semibold text-sage"
+                  >
+                    {isSaved ? <BookmarkCheck size={17} aria-hidden /> : <Bookmark size={17} aria-hidden />}
+                    {isSaved ? 'Saved' : 'Save'}
+                  </button>
+                  {isPlaying && (
+                    <button
+                      type="button"
+                      onClick={() => setPlayingId(null)}
+                      aria-label={`Stop ${video.title}`}
+                      className="flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-chip"
+                    >
+                      <X size={17} aria-hidden />
+                    </button>
+                  )}
+                </div>
+              </article>
+            )
+          })}
+        </div>
       )}
 
       <section className="mt-5 rounded-2xl bg-chip p-4 text-sm text-muted">
@@ -112,8 +182,15 @@ export default function VideosScreen() {
           Videos are educational and not medical advice. No analytics or tracking scripts are added. Playing a video contacts
           YouTube, which may receive your connection details.
         </p>
-        <p className="mt-2">Channel follows are saved only in this browser and are not synced.</p>
+        <p className="mt-2">Channel follows and saved videos are stored only in this browser.</p>
       </section>
     </>
   )
+}
+
+function categoryTone(category) {
+  if (category === 'Stress') return 'bg-gradient-to-br from-sage to-teal'
+  if (category === 'Evening routine') return 'bg-gradient-to-br from-amber to-sage'
+  if (category === 'Tea') return 'bg-gradient-to-br from-teal to-sage'
+  return 'bg-gradient-to-br from-teal to-sage'
 }

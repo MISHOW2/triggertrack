@@ -6,6 +6,7 @@ export const KEYS = {
   timer: 'triggertrack:timer:v1',
   theme: 'triggertrack:theme',
   videoFollows: 'triggertrack:video-follows:v1',
+  videoSaved: 'triggertrack:video-saved:v1',
 }
 
 export function readJSON(key, fallback) {

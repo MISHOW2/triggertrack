@@ -16,9 +16,9 @@ The existing system design prioritizes offline use, local data, and privacy. It 
 
 ## Decision
 
-Use option 2. Keep the catalog empty until videos are reviewed. Store entries in `src/utils/videoList.js` with `id` (YouTube video ID), `title`, `channel`, and a stable `channelKey`. Warn at startup about missing or duplicate IDs and missing display fields.
+Use option 2. Keep the catalog empty until videos are reviewed. Store entries in `src/utils/videoList.js` with `id` (YouTube video ID), `title`, `channel`, a stable `channelKey`, and one of the local topic categories. Optional thumbnails are local assets under `public/`; do not fetch remote thumbnail URLs. Warn at startup about missing or duplicate IDs and missing display fields.
 
-The Videos screen makes no video-provider request before Play. Playback uses YouTube's privacy-enhanced embed; the provider may receive connection details after playback starts. Do not add analytics or tracking scripts. Follow state remains in local storage and does not sync. Keep the educational-content and not-medical-advice notice visible.
+The Videos screen provides topic filters, search, thumbnail cards, channel follows, and a save-for-later list. It makes no video-provider request before Play. Playback uses YouTube's privacy-enhanced embed; the provider may receive connection details after playback starts. Do not add analytics or tracking scripts. Follow and saved state remain in local storage and do not sync. Keep the educational-content and not-medical-advice notice visible.
 
 ## Backlog and gate
 

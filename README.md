@@ -34,7 +34,7 @@ src/
 
 ## Things to know
 
-- The Videos screen starts with an empty curated catalog in `src/utils/videoList.js`. Add reviewed YouTube video IDs with a title, channel, and stable channel key. Videos are not loaded until someone taps Play; channel follows stay on that device. See [the video-library system-design decision](docs/system-design-decisions.md).
+- The Videos screen starts with an empty curated catalog in `src/utils/videoList.js`. Add reviewed YouTube video IDs with a title, channel, channel key, and topic; optional thumbnails must be local files under `public/`. Videos are not loaded until someone taps Play; follows and saved videos stay on that device. See [the video-library system-design decision](docs/system-design-decisions.md).
 - Bedtime entries record the time, pre-sleep symptoms, stress/relaxation, digestion/fullness, and an optional note. They remain on this device with the other tracker data.
 - The symptom timer saves its start time, so it stays correct if the phone locks or you close the app.
 - Insights counts, for each trigger tag, how many meals were followed by a symptom episode within 4 hours (`TRIGGER_WINDOW_HOURS` in `src/utils/constants.js`). It is a clue, not proof.
