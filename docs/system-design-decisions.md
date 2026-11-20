@@ -38,6 +38,10 @@ The current hand-curated, device-local implementation does not add a backend. De
 
 The local bedtime entry records its timestamp, pre-sleep symptoms and severity, a stress/relaxation level, a digestion/fullness state, and an optional note. These are self-reported observations, not diagnoses or evidence that a specific factor caused symptoms.
 
+## Insights presentation
+
+The Insights screen pairs the existing food-before-episode counts and duration summaries with a wake-time/severity chart and a 14-day daily count comparison for meals and symptom episodes. Charts summarize the user's own logs; they should not imply that a meal or wake time caused a symptom. Keep a visible caveat that small samples can be misleading.
+
 ## Revisit when
 
 Reconsider this choice if users need follows across devices, the curated list becomes difficult to keep accurate, or an API can be introduced without compromising privacy, offline behavior, or editorial review.

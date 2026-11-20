@@ -5,8 +5,14 @@ const HOUR = 3600 * 1000
 
 // Works out the numbers shown on the Insights screen from the logged entries.
 export function computeInsights(entries) {
-  const since = Date.now() - INSIGHT_DAYS * 24 * HOUR
-  const recent = entries.filter((e) => new Date(e.timestamp).getTime() >= since)
+  const now = new Date()
+  const firstDay = startOfDay(now)
+  firstDay.setDate(firstDay.getDate() - (INSIGHT_DAYS - 1))
+  const since = firstDay.getTime()
+  const recent = entries.filter((e) => {
+    const timestamp = new Date(e.timestamp).getTime()
+    return timestamp >= since && timestamp <= now.getTime()
+  })
 
   const meals = recent.filter((e) => e.type === 'meal')
   const wakes = recent.filter((e) => e.type === 'wake')
@@ -42,18 +48,23 @@ export function computeInsights(entries) {
     .map((w) => ({ minutes: minutesOfDay(w.timestamp), severity: w.severity ?? 0 }))
     .sort((a, b) => a.minutes - b.minutes)
 
-  // --- Episodes per day for the last 7 days ---
-  const week = []
-  for (let i = 6; i >= 0; i--) {
-    const day = startOfDay(new Date())
+  // --- Meals and episodes per day for the last 14 calendar days ---
+  const weeklyTrend = []
+  for (let i = 13; i >= 0; i--) {
+    const day = startOfDay(now)
     day.setDate(day.getDate() - i)
     const next = new Date(day)
     next.setDate(day.getDate() + 1)
-    const count = symptoms.filter((s) => {
-      const t = new Date(s.timestamp).getTime()
+    const countForDay = (list) => list.filter((entry) => {
+      const t = new Date(entry.timestamp).getTime()
       return t >= day.getTime() && t < next.getTime()
     }).length
-    week.push({ label: day.toLocaleDateString([], { weekday: 'short' }), count })
+    weeklyTrend.push({
+      dateLabel: day.toLocaleDateString([], { month: 'short', day: 'numeric' }),
+      label: day.toLocaleDateString([], { weekday: 'short' }),
+      meals: countForDay(recent.filter((entry) => entry.type === 'meal')),
+      symptoms: countForDay(symptoms),
+    })
   }
 
   return {
@@ -65,6 +76,6 @@ export function computeInsights(entries) {
     avgDuration,
     longest,
     wakeSeries,
-    week,
+    week: weeklyTrend,
   }
 }

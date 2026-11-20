@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { Award, Clock, Flame, Sun, TrendingUp } from 'lucide-react'
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Award, Clock, Flame, Info, Sun, TrendingUp } from 'lucide-react'
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import PageHeader from '../components/PageHeader'
 import { computeInsights } from '../utils/insights'
 import { formatDuration } from '../utils/dateUtils'
@@ -35,6 +35,7 @@ const tooltipStyle = { background: 'var(--card)', border: '1px solid var(--line)
 export default function InsightsScreen({ entries }) {
   const data = useMemo(() => computeInsights(entries), [entries])
   const maxFollowed = Math.max(1, ...data.foods.map((f) => f.followed))
+  const commonFoodPattern = data.foods[0]
 
   return (
     <>
@@ -42,8 +43,7 @@ export default function InsightsScreen({ entries }) {
 
       {data.episodeCount === 0 && (
         <p className="mb-4 rounded-2xl border border-dashed border-line p-5 text-sm text-muted">
-          No symptom episodes logged in the last {data.days} days yet. Insights appear once you have some episodes and meals logged.
-          You can try the app with sample data in Settings.
+          No symptom episodes logged in the last {data.days} days yet. Keep logging meals and symptoms to see your personal patterns.
         </p>
       )}
 
@@ -62,7 +62,7 @@ export default function InsightsScreen({ entries }) {
                 <div className="mb-1 flex justify-between text-sm">
                   <span className="font-medium">{f.tag}</span>
                   <span className="text-muted">
-                    {f.followed} of {f.eaten} {f.eaten === 1 ? 'time' : 'times'}
+                    {f.followed}×
                   </span>
                 </div>
                 <div className="h-2.5 rounded-full bg-chip" role="presentation">
@@ -102,7 +102,7 @@ export default function InsightsScreen({ entries }) {
         Icon={Sun}
         tone="bg-amber-soft text-amber"
         title="Wake time vs. severity"
-        subtitle="How bad your symptoms were on waking, by the time you woke up"
+        subtitle="Your logged wake times and symptom severity"
       >
         {data.wakeSeries.length < 2 ? (
           <p className="text-sm text-muted">Log at least two wake-ups to see this chart.</p>
@@ -118,27 +118,67 @@ export default function InsightsScreen({ entries }) {
                   labelFormatter={(m) => `Woke at ${clock(m)}`}
                   formatter={(v) => [`${v} (${SEVERITY_LABELS[v]})`, 'Severity']}
                 />
-                {/* Dots only: lines between different times of day would suggest a trend that isn't there */}
-                <Line type="linear" dataKey="severity" stroke="transparent" strokeWidth={0} dot={{ r: 5, fill: 'var(--teal)', stroke: 'var(--card)', strokeWidth: 2 }} activeDot={{ r: 7 }} isAnimationActive={false} />
+                <Line
+                  type="monotone"
+                  dataKey="severity"
+                  stroke="var(--teal)"
+                  strokeWidth={2}
+                  dot={{ r: 5, fill: 'var(--teal)', stroke: 'var(--card)', strokeWidth: 2 }}
+                  activeDot={{ r: 7 }}
+                  isAnimationActive={false}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         )}
+        {data.wakeSeries.length >= 2 && (
+          <p className="mt-2 text-xs text-muted">A visual pattern is a clue, not proof; a few entries can be misleading.</p>
+        )}
       </Card>
 
-      <Card Icon={TrendingUp} tone="bg-sage-soft text-sage" title="This week" subtitle="Symptom episodes per day">
-        <div className="h-48">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data.week} margin={{ top: 8, right: 12, bottom: 0, left: -20 }}>
-              <CartesianGrid stroke="var(--line)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="label" tick={chartAxis} stroke="var(--line)" />
-              <YAxis allowDecimals={false} tick={chartAxis} stroke="var(--line)" />
-              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'var(--chip)' }} formatter={(v) => [v, 'Episodes']} />
-              <Bar dataKey="count" fill="var(--sage)" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <Card Icon={TrendingUp} tone="bg-sage-soft text-sage" title="Weekly trend" subtitle="Meals and symptom episodes over the past 2 weeks">
+        {data.mealCount === 0 && data.episodeCount === 0 ? (
+          <p className="text-sm text-muted">Log meals and symptom episodes to see how they vary day by day.</p>
+        ) : (
+          <>
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.week} margin={{ top: 8, right: 12, bottom: 0, left: -20 }} barGap={2}>
+                  <CartesianGrid stroke="var(--line)" strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="label" tick={chartAxis} stroke="var(--line)" interval={0} />
+                  <YAxis allowDecimals={false} tick={chartAxis} stroke="var(--line)" />
+                  <Tooltip
+                    contentStyle={tooltipStyle}
+                    cursor={{ fill: 'var(--chip)' }}
+                    labelFormatter={(label, payload) => payload?.[0]?.payload?.dateLabel ?? label}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={28}
+                    formatter={(value) => (value === 'meals' ? 'Meals' : 'Symptoms')}
+                    wrapperStyle={{ color: 'var(--muted)', fontSize: 12 }}
+                  />
+                  <Bar dataKey="meals" name="meals" fill="var(--sage)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="symptoms" name="symptoms" fill="var(--teal)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="mt-2 text-xs text-muted">These counts show what you logged, not whether one caused the other.</p>
+          </>
+        )}
       </Card>
+
+      <section className="mb-4 flex gap-3 rounded-3xl bg-chip p-4 text-sm text-muted" aria-label="Tracking summary">
+        <Info size={18} className="mt-0.5 shrink-0" aria-hidden />
+        <p>
+          You&apos;ve logged {data.mealCount} {data.mealCount === 1 ? 'meal' : 'meals'}, {data.wakeCount}{' '}
+          {data.wakeCount === 1 ? 'wake-up' : 'wake-ups'}, and {data.episodeCount}{' '}
+          {data.episodeCount === 1 ? 'symptom episode' : 'symptom episodes'} in the last {data.days} days.
+          {commonFoodPattern && (
+            <> Most often tagged before an episode: <span className="font-semibold text-ink">{commonFoodPattern.tag}</span>.</>
+          )}
+        </p>
+      </section>
     </>
   )
 }
