@@ -1,35 +1,46 @@
-// The ONLY file that talks to a server. Right now it is a stand-in (no backend yet),
-// so every call succeeds after a short delay and nothing leaves the phone.
+// The ONLY file that talks to a server. Authentication is live; diary sync remains mocked.
 //
-// To go live: replace the bodies below with calls to your API (Supabase or your own),
-// keeping the same function names and return shapes. Screens and the sync engine stay unchanged.
+// To enable real diary sync, replace the remaining stub functions with API calls.
 //
 //   push(changes)   -> resolves when the server has stored every change (idempotent by id)
 //   deleteAccount() -> resolves when the account and all its data are deleted
 //   sendFeedback(f) -> resolves when the feedback is received
 
 export const isMockRemote = true
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '')
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+async function authRequest(path, body) {
+  let response
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch {
+    const error = new Error('Unable to reach the sign-in server.')
+    error.userMessage = "We couldn't reach the sign-in server. Please try again."
+    throw error
+  }
+
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const error = new Error(data.error || 'Sign-in request failed.')
+    error.userMessage = data.error || 'Sign-in request failed. Please try again.'
+    throw error
+  }
+  return data
+}
+
 export async function requestCode(email) {
-  await wait(500)
-  sessionStorage.setItem('triggertrack:mock-code:v1', '123456')
-  sessionStorage.setItem('triggertrack:mock-email:v1', email)
+  await authRequest('/auth/login', { email })
 }
 
 export async function verifyCode(email, code) {
-  await wait(500)
-  if (
-    code !== sessionStorage.getItem('triggertrack:mock-code:v1') ||
-    email !== sessionStorage.getItem('triggertrack:mock-email:v1')
-  ) {
-    const error = new Error('That PIN is incorrect or has expired.')
-    error.userMessage = 'That PIN is incorrect or has expired.'
-    throw error
-  }
-  sessionStorage.removeItem('triggertrack:mock-code:v1')
-  sessionStorage.removeItem('triggertrack:mock-email:v1')
+  const session = await authRequest('/auth/verify', { email, code })
+  return { ...session, email, at: new Date().toISOString() }
 }
 
 export async function push(changes) {

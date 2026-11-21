@@ -11,6 +11,10 @@ npm run build      # production build into dist/
 npm run preview    # serve the production build (needed to test install / offline)
 ```
 
+For real email sign-in, set `VITE_API_URL` to the server origin before building
+(for local development, create `.env` with `VITE_API_URL=http://localhost:3000`).
+The server must be configured with PostgreSQL and SMTP; see `../server/README.md`.
+
 ## Use it on your phone
 
 1. Deploy the `dist/` folder (Netlify, Vercel, GitHub Pages, any static host). It must be served over HTTPS.

@@ -78,8 +78,8 @@ export default function LoginScreen({ onRequestCode, onVerifyCode, onDone }) {
     setError('')
     setNotice('')
     try {
-      await onVerifyCode(email, code)
-      onDone?.(email)
+      const session = await onVerifyCode(email, code)
+      onDone?.(session)
     } catch (err) {
       setError(err?.userMessage || "That PIN didn't work. Check it and try again.")
       setCode('')

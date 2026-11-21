@@ -84,7 +84,7 @@ export default function App() {
         <LoginScreen
           onRequestCode={remote.requestCode}
           onVerifyCode={remote.verifyCode}
-          onDone={(email) => setAuth({ email, at: new Date().toISOString() })}
+          onDone={setAuth}
         />
       </div>
     )
