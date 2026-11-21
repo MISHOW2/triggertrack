@@ -12,6 +12,26 @@ export const isMockRemote = true
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+export async function requestCode(email) {
+  await wait(500)
+  sessionStorage.setItem('triggertrack:mock-code:v1', '123456')
+  sessionStorage.setItem('triggertrack:mock-email:v1', email)
+}
+
+export async function verifyCode(email, code) {
+  await wait(500)
+  if (
+    code !== sessionStorage.getItem('triggertrack:mock-code:v1') ||
+    email !== sessionStorage.getItem('triggertrack:mock-email:v1')
+  ) {
+    const error = new Error('That PIN is incorrect or has expired.')
+    error.userMessage = 'That PIN is incorrect or has expired.'
+    throw error
+  }
+  sessionStorage.removeItem('triggertrack:mock-code:v1')
+  sessionStorage.removeItem('triggertrack:mock-email:v1')
+}
+
 export async function push(changes) {
   await wait(500)
   return { applied: changes.map((c) => c.id) }
