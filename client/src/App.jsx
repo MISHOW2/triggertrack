@@ -19,14 +19,12 @@ import QuestionnaireScreen from './screens/QuestionnaireScreen'
 import WelcomeScreen from './screens/WelcomeScreen'
 import FeedbackScreen from './screens/FeedbackScreen'
 import SleepImportScreen from './screens/SleepImportScreen'
-import LoginScreen from './screens/LoginScreen'
 import useEntries from './hooks/useEntries'
 import useLocalStorage from './hooks/useLocalStorage'
 import useReminders from './hooks/useReminders'
 import { useSync } from './context/SyncContext'
 import { flushFeedback } from './data/feedbackQueue'
 import { KEYS } from './data/storage'
-import * as remote from './data/remote'
 
 // Which bottom-bar tab to highlight for each screen
 function tabFor(view) {
@@ -38,7 +36,6 @@ function tabFor(view) {
 
 export default function App() {
   const { consent } = useSync()
-  const [auth, setAuth] = useLocalStorage(KEYS.auth, null)
   const [onboarded, setOnboarded] = useLocalStorage(KEYS.onboarded, false)
   const [view, setView] = useState(onboarded ? 'home' : 'welcome')
   const [firstRun, setFirstRun] = useState(!onboarded)
@@ -77,18 +74,6 @@ export default function App() {
     window.addEventListener('online', flushFeedback)
     return () => window.removeEventListener('online', flushFeedback)
   }, [])
-
-  if (!auth) {
-    return (
-      <div className="min-h-screen bg-app text-ink">
-        <LoginScreen
-          onRequestCode={remote.requestCode}
-          onVerifyCode={remote.verifyCode}
-          onDone={setAuth}
-        />
-      </div>
-    )
-  }
 
   const navigate = (next) => {
     if (next !== 'privacy') setFirstRun(false)

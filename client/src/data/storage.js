@@ -3,7 +3,6 @@
 
 export const KEYS = {
   entries: 'triggertrack:entries:v1', // legacy: read once to migrate into IndexedDB
-  auth: 'triggertrack:auth:v1',
   timer: 'triggertrack:timer:v1',
   theme: 'triggertrack:theme',
   videoFollows: 'triggertrack:video-follows:v1',
