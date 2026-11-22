@@ -1,5 +1,10 @@
 # TriggerTrack API authentication
 
+> This is a separate, experimental authentication API. The current local-only
+> TriggerTrack PWA does not call or require this server. Do not deploy it as part
+> of the v1 PWA; the client stores diary data on the device and has no account
+> or sync flow.
+
 Passwordless authentication uses an emailed six-digit code. Both `POST /auth/signup`
 and `POST /auth/login` request a code; new users are created only after the code is
 verified. `POST /auth/verify` returns a 15-minute JWT access token and a 30-day

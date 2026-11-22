@@ -1,60 +1,59 @@
 # TriggerTrack
 
-Personal reflux / LPR tracker: log meals (with trigger tags), wake-ups, and symptom episodes (with a live timer), then see patterns in Insights. Built with React + Vite + Tailwind as an installable web app (PWA). Entries are saved on the phone first (IndexedDB), so logging works offline. Optional cloud sync is built behind a stand-in remote (`src/data/remote.js`) until a backend exists. Videos contact YouTube only when you tap play.
+TriggerTrack is a personal reflux/LPR diary for meals, wake-ups, and symptom episodes. It is an installable, offline-capable Progressive Web App built with React, Vite, Tailwind CSS, and IndexedDB.
 
-## Run it
+## Local-only data
+
+- Diary entries and the running symptom timer are stored on this device.
+- There are no accounts, login, cloud sync, analytics, advertising, or tracking SDKs.
+- Logging and reviewing entries do not require a network connection.
+- Deleting the app or clearing its browser/app data deletes the local diary. Use **Settings → Your data → Export** to make a backup.
+- Exported JSON files contain health information. Keep them private.
+- Insights are observational clues, not proof, diagnosis, or medical advice.
+- Feedback opens the user's own email app. Do not include health details.
+
+The app does not need the API in `../server` to run. That API is separate and is not connected to the local-only PWA.
+
+## Run locally
+
+From this directory:
 
 ```bash
 npm install
-npm run dev        # development, opens on http://localhost:5173
-npm run build      # production build into dist/
-npm run preview    # serve the production build (needed to test install / offline)
+npm run dev
+npm run build
+npm run preview
 ```
 
-For real email sign-in, set `VITE_API_URL` to the server origin before building
-(for local development, create `.env` with `VITE_API_URL=http://localhost:3000`).
-The server must be configured with PostgreSQL and SMTP; see `../server/README.md`.
+`npm run build` writes the production PWA to `dist/`. `npm run preview` serves that build locally for a final check; browser install prompts require HTTPS or localhost.
 
-## Use it on your phone
+## Install on a phone
 
-1. Deploy the `dist/` folder (Netlify, Vercel, GitHub Pages, any static host). It must be served over HTTPS.
-2. Open the site on your phone.
-   - Android (Chrome): menu > "Install app" / "Add to Home screen".
-   - iPhone (Safari): Share > "Add to Home Screen".
+1. Deploy the contents of `dist/` to a static host with HTTPS.
+2. Open the HTTPS URL on the phone and allow the app to load once.
+3. Install it:
+   - Android: Chrome menu → **Install app** or **Add to Home screen**.
+   - iPhone: Safari Share menu → **Add to Home Screen**.
+4. Open the installed app and verify logging and history work, then enable airplane mode and verify the core diary still opens.
 
-Until sync is connected to a real backend, data is stored per device and per browser. Use Settings > Your data > Export to back it up.
+The service worker caches the built app for offline use. The initial install requires a network connection.
 
 ## Project layout
 
-```
+```text
 src/
-  App.jsx                 screen switching, theme, running timer
-  components/             NavBar, Modal, EntryCard, TagButton, SeverityPicker...
-  screens/                Home, Log (MealForm, WakeForm, BedtimeForm, SymptomTimer, SymptomForm), History, Insights, Videos, Settings
-  hooks/                  useLocalStorage, useEntries (IndexedDB), useReminders
-  context/SyncContext     consent, online state, outbox sync engine
-  data/db.js              IndexedDB (Dexie): diary entries
-  data/storage.js         localStorage for small settings and collections (+ export, sample data)
-  data/remote.js          the ONLY file that talks to a server (stub for now)
-  utils/                  constants, dateUtils, insights, videoList (curated videos)
+  App.jsx                 Screen switching, theme, and running timer
+  components/             Navigation, entry cards, forms, and controls
+  screens/                Welcome, logging, history, insights, settings, and data
+  hooks/                  Local settings and IndexedDB entries
+  data/db.js              IndexedDB database
+  data/storage.js         Local settings, data export, and backup import
+  utils/                  Constants, date helpers, and observational insights
+public/privacy-policy.html Public privacy-policy page for static hosting
 ```
 
-## Things to know
+## Notes
 
-- The Videos screen starts with an empty curated catalog in `src/utils/videoList.js`. Add reviewed YouTube video IDs with a title, channel, channel key, and topic; optional thumbnails must be local files under `public/`. Videos are not loaded until someone taps Play; follows and saved videos stay on that device. See [the video-library system-design decision](docs/system-design-decisions.md).
-- Bedtime entries record the time, pre-sleep symptoms, stress/relaxation, digestion/fullness, and an optional note. They remain on this device with the other tracker data.
-- The symptom timer saves its start time, so it stays correct if the phone locks or you close the app.
-- Insights counts, for each trigger tag, how many meals were followed by a symptom episode within 4 hours (`TRIGGER_WINDOW_HOURS` in `src/utils/constants.js`). It is a clue, not proof.
-- Edit the trigger / symptom lists in `src/utils/constants.js`.
-- Not medical advice.
-
-## Front-end phases (what is built)
-
-- **Offline-first storage:** entries live in IndexedDB; old localStorage entries migrate once on first load.
-- **Sync (Phase 2):** per-entry status, offline banner on Home, Sync details screen, soft deletes. `src/data/remote.js` is a stand-in that always succeeds, so nothing leaves the phone until you replace it.
-- **Privacy (Phase 3):** consent screen (versioned), plain-language policy draft (needs legal review), Your data (export, clear this phone, delete account).
-- **Backlog features:** medication log, doctor report (downloadable PDF), insights confidence + time of day + safe foods, reminders, weekly questionnaire (9-item RSI, wording in `src/utils/questionnaire.js`).
-- **Beta:** welcome screen, feedback queue, sleep import (manual entry works; Health Connect needs the Android app, see `src/data/sleepSource.js`).
-
-### To connect a real backend
-Replace the three functions in `src/data/remote.js` (`push`, `deleteAccount`, `sendFeedback`) and set `isMockRemote = false`. Screens and the sync engine do not change. Reminders on a PWA only show while the app is open; background notifications need the Capacitor app.
+- The symptom timer stores its start timestamp, so it survives app closure.
+- Food clues count logged meals in the four hours before symptom episodes. They are shown only after a minimum amount of data and are not evidence of cause.
+- Optional features outside the v1 diary are not exposed in the interface.

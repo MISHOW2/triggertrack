@@ -15,3 +15,11 @@ Thumbs.db
 
 .vite/
 *.tsbuildinfo
+
+.agents/
+.claude/
+.postman/
+postman/
+*.postman_collection.json
+*.postman_environment.json
+*.postman_globals.json
