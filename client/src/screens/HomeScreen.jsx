@@ -1,5 +1,4 @@
 import { Activity, ArrowRight, Bell, CalendarDays, ChartColumn, Check, ChevronRight, Moon, Settings, Sun, UtensilsCrossed } from 'lucide-react'
-import SyncBanner from '../components/SyncBanner'
 import { REMINDER_COPY } from '../hooks/useReminders'
 import TodayCarousel from '../components/TodayCarousel'
 import SeverityBadge from '../components/SeverityBadge'
@@ -99,8 +98,6 @@ export default function HomeScreen({ entries, timer, onNavigate, notice = false,
           <Settings size={19} aria-hidden />
         </button>
       </header>
-
-      <SyncBanner onNavigate={onNavigate} />
 
       {due.map((id) => (
         <div key={id} className="mb-3 flex items-center gap-3 rounded-2xl bg-sage-soft p-3 text-sage">

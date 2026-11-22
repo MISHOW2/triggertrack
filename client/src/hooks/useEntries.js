@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { db, notifyStorageChanged } from '../data/db'
-import { KEYS, isCloudEnabled, newId, readJSON, removeKey } from '../data/storage'
+import { KEYS, newId, readJSON, removeKey } from '../data/storage'
 
 const sortNewestFirst = (list) => [...list].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 const live = (rows) => rows.filter((e) => !e.deletedAt)
 const stamp = (entry) => ({
   ...entry,
   updatedAt: new Date().toISOString(),
-  syncState: isCloudEnabled() ? 'pending' : 'local',
 })
 
 // All logged entries (meals, wake-ups, bedtimes, symptom episodes) plus add / update / delete.
@@ -16,6 +15,7 @@ export default function useEntries() {
   const [entries, setEntriesState] = useState([])
   const [ready, setReady] = useState(false)
   const ref = useRef([])
+  const recentAdds = useRef(new Map())
 
   const setEntries = useCallback((list) => {
     ref.current = list
@@ -36,7 +36,7 @@ export default function useEntries() {
         if (Array.isArray(legacy) && legacy.length > 0) {
           const existing = await db.entries.count()
           if (existing === 0) {
-            await db.entries.bulkPut(legacy.map((e) => ({ ...e, updatedAt: e.updatedAt || e.timestamp, syncState: 'local' })))
+            await db.entries.bulkPut(legacy.map((e) => ({ ...e, updatedAt: e.updatedAt || e.timestamp })))
           }
           removeKey(KEYS.entries)
         }
@@ -59,6 +59,20 @@ export default function useEntries() {
   }
 
   const addEntry = (entry) => {
+    const signature = JSON.stringify({
+      type: entry.type,
+      timestamp: entry.timestamp,
+      name: entry.name,
+      durationMin: entry.durationMin,
+      severity: entry.severity,
+    })
+    const now = Date.now()
+    const previous = recentAdds.current.get(signature)
+    if (previous && now - previous < 1500) return
+    recentAdds.current.set(signature, now)
+    for (const [key, time] of recentAdds.current) {
+      if (now - time >= 1500) recentAdds.current.delete(key)
+    }
     const row = stamp({ id: newId(), ...entry })
     setEntries(sortNewestFirst([...ref.current, row]))
     persist([row])
@@ -76,12 +90,7 @@ export default function useEntries() {
     const current = ref.current.find((e) => e.id === id)
     if (!current) return
     setEntries(ref.current.filter((e) => e.id !== id))
-    if (current.syncState === 'local') {
-      // Never left this phone, so there is nothing to tell the server
-      db.entries.delete(id).catch(() => {})
-    } else {
-      persist([{ ...current, deletedAt: new Date().toISOString(), updatedAt: new Date().toISOString(), syncState: 'pending' }])
-    }
+    db.entries.delete(id).catch(() => {})
   }
 
   const addMany = (list) => {
@@ -106,5 +115,36 @@ export default function useEntries() {
     notifyStorageChanged()
   }
 
-  return { entries, ready, addEntry, updateEntry, deleteEntry, addMany, removeWhere, clearLocal, clearAll: clearLocal }
+  const importEntries = async (entriesToImport) => {
+    const rows = entriesToImport.map((entry) => stamp({
+      ...entry,
+      id: typeof entry.id === 'string' && entry.id ? entry.id : newId(),
+    }))
+    await db.entries.clear()
+    await db.entries.bulkPut(rows)
+    setEntries(sortNewestFirst(live(rows)))
+    notifyStorageChanged()
+  }
+
+  const clearAll = async () => {
+    await clearLocal()
+    const keys = [
+      KEYS.timer,
+      KEYS.medLogs,
+      KEYS.questionnaire,
+      KEYS.sleepNights,
+      KEYS.sleepPrefs,
+      KEYS.reminders,
+      KEYS.remindersDone,
+      KEYS.meds,
+      KEYS.feedback,
+      KEYS.diagnostics,
+      KEYS.reportRange,
+      KEYS.videoFollows,
+      KEYS.videoSaved,
+    ]
+    keys.forEach((key) => removeKey(key))
+  }
+
+  return { entries, ready, addEntry, updateEntry, deleteEntry, addMany, removeWhere, clearLocal, clearAll, importEntries }
 }

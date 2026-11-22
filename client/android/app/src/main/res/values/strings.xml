@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TriggerTrack</string>
+    <string name="title_activity_main">TriggerTrack</string>
+    <string name="package_name">com.mixo.triggertrack</string>
+    <string name="custom_url_scheme">com.mixo.triggertrack</string>
+</resources>

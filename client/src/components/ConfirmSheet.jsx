@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 // Bottom sheet that asks before something that cannot be undone.
-// requireCheck: optional sentence the person must tick first (used for account deletion).
+// requireCheck: optional sentence the person must tick first.
 export default function ConfirmSheet({
   title,
   body,

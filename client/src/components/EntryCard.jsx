@@ -2,7 +2,6 @@ import { Activity, Clock, Moon, Pencil, Sun, Trash2, UtensilsCrossed } from 'luc
 import { formatDuration, formatTime } from '../utils/dateUtils'
 import { BEDTIME_DIGESTION_STATES, BEDTIME_STRESS_LEVELS } from '../utils/constants'
 import SeverityBadge from './SeverityBadge'
-import SyncDot from './SyncDot'
 
 const META = {
   meal: { label: 'Meal', Icon: UtensilsCrossed, tile: 'bg-sage-soft text-sage' },
@@ -64,11 +63,6 @@ export default function EntryCard({ entry, compact = false, onEdit, onDelete }) 
             </div>
           )}
           {entry.notes && <p className="mt-1 text-sm text-muted">{entry.notes}</p>}
-          {onEdit && (
-            <div className="mt-2">
-              <SyncDot entry={entry} />
-            </div>
-          )}
         </div>
         {(onEdit || onDelete) && (
           <div className="flex shrink-0 flex-col gap-1">

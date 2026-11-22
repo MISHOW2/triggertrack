@@ -7,8 +7,6 @@ export const KEYS = {
   theme: 'triggertrack:theme',
   videoFollows: 'triggertrack:video-follows:v1',
   videoSaved: 'triggertrack:video-saved:v1',
-  consent: 'triggertrack:consent:v1',
-  lastSynced: 'triggertrack:last-synced:v1',
   onboarded: 'triggertrack:onboarded:v1',
   meds: 'triggertrack:meds:v1',
   medLogs: 'triggertrack:med-logs:v1',
@@ -49,10 +47,6 @@ export function removeKey(key) {
   }
 }
 
-export function isCloudEnabled() {
-  return readJSON(KEYS.consent, null)?.decision === 'granted'
-}
-
 export function newId() {
   return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
@@ -84,6 +78,33 @@ export function exportEntries(entries) {
   a.download = `triggertrack-${new Date().toISOString().slice(0, 10)}.json`
   a.click()
   URL.revokeObjectURL(url)
+}
+
+export async function readEntryBackup(file) {
+  if (!file || file.size > 25 * 1024 * 1024) {
+    throw new Error('That file is too large.')
+  }
+  const text = await file.text()
+  let parsed
+  try {
+    parsed = JSON.parse(text)
+  } catch {
+    throw new Error('That is not a valid TriggerTrack backup file.')
+  }
+  if (!Array.isArray(parsed.entries)) {
+    throw new Error('This file does not contain a TriggerTrack diary.')
+  }
+  const entries = parsed.entries.filter((entry) =>
+    entry &&
+    typeof entry === 'object' &&
+    typeof entry.id === 'string' &&
+    typeof entry.type === 'string' &&
+    typeof entry.timestamp === 'string',
+  )
+  if (entries.length !== parsed.entries.length) {
+    throw new Error('The backup contains entries that are not valid.')
+  }
+  return entries
 }
 
 // Sample data so you can try the app (and Insights) before you have real logs.

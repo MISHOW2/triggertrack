@@ -6,36 +6,25 @@ import LogScreen from './screens/LogScreen'
 import HistoryScreen from './screens/HistoryScreen'
 import InsightsScreen from './screens/InsightsScreen'
 import SettingsScreen from './screens/SettingsScreen'
-import VideosScreen from './screens/VideosScreen'
-import SyncScreen from './screens/SyncScreen'
-import ConsentScreen from './screens/ConsentScreen'
 import PolicyScreen from './screens/PolicyScreen'
 import YourDataScreen from './screens/YourDataScreen'
-import MedicationsScreen from './screens/MedicationsScreen'
-import ReportOptionsScreen from './screens/ReportOptionsScreen'
-import ReportScreen from './screens/ReportScreen'
-import RemindersScreen from './screens/RemindersScreen'
-import QuestionnaireScreen from './screens/QuestionnaireScreen'
 import WelcomeScreen from './screens/WelcomeScreen'
 import FeedbackScreen from './screens/FeedbackScreen'
-import SleepImportScreen from './screens/SleepImportScreen'
 import useEntries from './hooks/useEntries'
 import useLocalStorage from './hooks/useLocalStorage'
 import useReminders from './hooks/useReminders'
-import { useSync } from './context/SyncContext'
-import { flushFeedback } from './data/feedbackQueue'
 import { KEYS } from './data/storage'
+import { SYNC_ENABLED } from './utils/constants'
 
 // Which bottom-bar tab to highlight for each screen
 function tabFor(view) {
   if (view.startsWith('log')) return 'log'
-  if (['insights', 'questionnaire', 'report-options', 'report'].includes(view)) return 'insights'
-  if (['home', 'history', 'videos', 'medications'].includes(view)) return view === 'medications' ? 'home' : view
+  if (['insights'].includes(view)) return 'insights'
+  if (['home', 'history'].includes(view)) return view
   return 'settings'
 }
 
 export default function App() {
-  const { consent } = useSync()
   const [onboarded, setOnboarded] = useLocalStorage(KEYS.onboarded, false)
   const [view, setView] = useState(onboarded ? 'home' : 'welcome')
   const [firstRun, setFirstRun] = useState(!onboarded)
@@ -68,14 +57,8 @@ export default function App() {
     return () => clearTimeout(id)
   }, [notice])
 
-  // Send any queued feedback when the app opens and when the network returns
-  useEffect(() => {
-    flushFeedback()
-    window.addEventListener('online', flushFeedback)
-    return () => window.removeEventListener('online', flushFeedback)
-  }, [])
-
   const navigate = (next) => {
+    if (!SYNC_ENABLED && next === 'sync') next = 'settings'
     if (next !== 'privacy') setFirstRun(false)
     setView(next)
   }
@@ -90,13 +73,8 @@ export default function App() {
 
   const finishWelcome = () => {
     setOnboarded(true)
-    if (!consent) {
-      setFirstRun(true)
-      setView('privacy')
-    } else {
-      setFirstRun(false)
-      setView('home')
-    }
+    setFirstRun(false)
+    setView('home')
   }
 
   let screen
@@ -136,27 +114,16 @@ export default function App() {
     )
   else if (view === 'insights')
     screen = <InsightsScreen entries={entries.entries} onNavigate={navigate} latestScore={scores[scores.length - 1]?.total} />
-  else if (view === 'videos') screen = <VideosScreen />
-  else if (view === 'sync') screen = <SyncScreen onNavigate={navigate} />
-  else if (view === 'privacy') screen = <ConsentScreen onNavigate={navigate} firstRun={firstRun} />
   else if (view === 'privacy-policy') screen = <PolicyScreen onNavigate={navigate} />
-  else if (view === 'your-data') screen = <YourDataScreen entries={entries.entries} onClearLocal={entries.clearLocal} onNavigate={navigate} />
-  else if (view === 'medications') screen = <MedicationsScreen onNavigate={navigate} />
-  else if (view === 'report-options') screen = <ReportOptionsScreen entries={entries.entries} onNavigate={navigate} />
-  else if (view === 'report') screen = <ReportScreen entries={entries.entries} onNavigate={navigate} />
-  else if (view === 'reminders') screen = <RemindersScreen onNavigate={navigate} />
-  else if (view === 'questionnaire') screen = <QuestionnaireScreen onNavigate={navigate} />
+  else if (view === 'privacy') screen = <PolicyScreen onNavigate={navigate} />
+  else if (view === 'your-data') screen = <YourDataScreen entries={entries.entries} onClearAll={entries.clearAll} onImport={entries.importEntries} onNavigate={navigate} />
   else if (view === 'feedback') screen = <FeedbackScreen onNavigate={navigate} />
-  else if (view === 'sleep-import') screen = <SleepImportScreen entries={entries.entries} onNavigate={navigate} />
   else
     screen = (
       <SettingsScreen
-        entries={entries.entries}
         theme={theme}
         setTheme={setTheme}
         onNavigate={navigate}
-        onAddSample={entries.addMany}
-        onRemoveSample={() => entries.removeWhere((e) => e.sample)}
       />
     )
 

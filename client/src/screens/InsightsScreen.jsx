@@ -51,11 +51,7 @@ const EXPLORE_PATTERNS = [
   { id: 'weekly-trend', Icon: TrendingUp, tone: 'bg-sage-soft text-sage', title: 'Weekly trend', sub: 'Meals and symptom episodes, day by day' },
 ]
 
-const EXPLORE_TOOLS = [
-  { id: 'questionnaire', Icon: ClipboardList, tone: 'bg-teal-soft text-teal', title: 'Weekly check-in', sub: 'Nine quick questions, once a week' },
-  { id: 'report-options', Icon: FileText, tone: 'bg-sage-soft text-sage', title: 'Doctor report', sub: 'Preview and download your report' },
-  { id: 'medications', Icon: Pill, tone: 'bg-amber-soft text-amber', title: 'Medications', sub: 'Doses next to your entries' },
-]
+const EXPLORE_TOOLS = []
 
 function ExploreOption({ Icon, tone, title, sub, onClick }) {
   return (
@@ -176,6 +172,14 @@ function InsightSheet({ insightId, data, onClose, onNavigate }) {
       )
     }
   } else if (insightId === 'safe-foods') {
+    if (!data.enoughData) {
+      action = { label: 'Log more entries', view: 'log' }
+      content = (
+        <EmptyInsight Icon={Leaf} tone="bg-sage-soft text-sage">
+          Not enough data yet. Show clues after at least 5 meals and 3 symptom episodes in this period.
+        </EmptyInsight>
+      )
+    } else
     if (data.safeFoods.length === 0 && data.foods.length === 0) {
       action = { label: 'Log a meal', view: 'log-meal' }
     }

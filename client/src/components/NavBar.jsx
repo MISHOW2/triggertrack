@@ -1,17 +1,16 @@
-import { ChartColumn, Clapperboard, History, House, Plus, Settings, Heart } from 'lucide-react'
+import { ChartColumn, History, House, Plus, Settings, Heart } from 'lucide-react'
 
 const ITEMS = [
   { id: 'home', label: 'Home', Icon: House },
   { id: 'log', label: 'Log', Icon: Plus },
   { id: 'history', label: 'History', Icon: History },
   { id: 'insights', label: 'Insights', Icon: ChartColumn },
-  { id: 'videos', label: 'Videos', Icon: Clapperboard },
   { id: 'settings', label: 'Settings', Icon: Settings },
 ]
 
 // Settings lives in a gear at the top right on phones, so the bar stays roomy
 const LEFT = ITEMS.filter((i) => ['home', 'history'].includes(i.id))
-const RIGHT = ITEMS.filter((i) => ['insights', 'videos'].includes(i.id))
+const RIGHT = ITEMS.filter((i) => ['insights', 'settings'].includes(i.id))
 
 function TabButton({ item, active, onNavigate }) {
   const { id, label, Icon } = item

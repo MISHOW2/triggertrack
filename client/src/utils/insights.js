@@ -38,6 +38,7 @@ export function computeInsights(entries, range = {}) {
   const meals = recent.filter((e) => e.type === 'meal')
   const wakes = recent.filter((e) => e.type === 'wake')
   const symptoms = recent.filter((e) => e.type === 'symptom')
+  const enoughData = meals.length >= 5 && symptoms.length >= 3
 
   // Did a symptom episode start within the window after this meal?
   const followedByEpisode = (meal) => {
@@ -59,10 +60,10 @@ export function computeInsights(entries, range = {}) {
       if (followed) perTag[tag].followed += 1
     })
   })
-  const allFoods = Object.values(perTag)
+  const allFoods = enoughData ? Object.values(perTag)
     .filter((f) => f.followed > 0)
     .map((f) => ({ ...f, rate: f.followed / f.eaten, confidence: confidenceFor(f, baseline) }))
-    .sort((a, b) => b.followed - a.followed || b.rate - a.rate)
+    .sort((a, b) => b.followed - a.followed || b.rate - a.rate) : []
   const foods = allFoods.slice(0, 5)
 
   // --- Foods never followed by an episode ---
@@ -74,10 +75,10 @@ export function computeInsights(entries, range = {}) {
     perName[key].count += 1
     if (followed) perName[key].followed += 1
   })
-  const safeFoods = Object.values(perName)
+  const safeFoods = enoughData ? Object.values(perName)
     .filter((f) => f.count >= SAFE_FOOD_MIN_LOGS && f.followed === 0)
     .sort((a, b) => b.count - a.count)
-    .slice(0, 6)
+    .slice(0, 6) : []
 
   // --- Symptom duration ---
   const durations = symptoms.map((s) => s.durationMin || 0)
@@ -154,5 +155,6 @@ export function computeInsights(entries, range = {}) {
     wakeSeries,
     wakeTrend,
     week: weeklyTrend,
+    enoughData,
   }
 }

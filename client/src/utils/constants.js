@@ -1,5 +1,7 @@
 // Fixed lists used across the app. Edit these to change what you can tag.
 
+export const SYNC_ENABLED = false
+
 export const TRIGGER_TAGS = [
   'Coffee',
   'Tomato',

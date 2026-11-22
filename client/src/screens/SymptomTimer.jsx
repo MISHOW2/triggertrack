@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronUp, Play, Plus, Square, Timer } from 'lucide-react'
 import SeverityPicker from '../components/SeverityPicker'
 import TagButton from '../components/TagButton'
@@ -16,6 +16,7 @@ export default function SymptomTimer({ timer, setTimer, onSaveEpisode, onDone })
   const [notes, setNotes] = useState(timer?.notes ?? '')
   const [saved, setSaved] = useState(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const stopping = useRef(false)
 
   const running = Boolean(timer)
 
@@ -33,12 +34,15 @@ export default function SymptomTimer({ timer, setTimer, onSaveEpisode, onDone })
   const elapsedSeconds = running ? (now - new Date(timer.startedAt).getTime()) / 1000 : 0
 
   const start = () => {
+    stopping.current = false
     setSaved(null)
     setNow(Date.now())
     setTimer({ startedAt: new Date().toISOString(), symptomType, severity, notes })
   }
 
   const stop = () => {
+    if (stopping.current) return
+    stopping.current = true
     const durationMin = Math.max(1, Math.round(elapsedSeconds / 60))
     onSaveEpisode({
       type: 'symptom',

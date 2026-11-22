@@ -15,24 +15,21 @@ export default function WelcomeScreen({ firstRun, onStart, onFeedback, onBack })
       )}
       <div className="flex flex-col items-center pb-6 pt-6 text-center">
         <Logo size={56} />
-        <h1 className="mt-4 text-3xl font-bold">Welcome to the beta</h1>
-        <p className="mt-2 max-w-xs text-sm text-muted">You&apos;re one of a small group of people helping shape TriggerTrack. Thank you.</p>
+        <h1 className="mt-4 text-3xl font-bold">Welcome to TriggerTrack</h1>
+        <p className="mt-2 max-w-xs text-sm text-muted">A private diary for meals, wake-ups, and symptom episodes.</p>
       </div>
 
       <section className="mb-4 rounded-3xl border border-line bg-card p-4">
-        <h2 className="mb-2 font-bold">What to expect</h2>
-        <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
-          <li>Log daily for two weeks</li>
-          <li>Rough edges are normal</li>
-          <li>Your feedback decides what gets built next</li>
-        </ul>
+        <h2 className="mb-2 font-bold">Your privacy</h2>
+        <p className="text-sm leading-6 text-muted">
+          Your data stays on this device. It is not sent to an account or cloud service. Deleting the app or clearing its data deletes your entries.
+          Export a backup if you want to keep or restore them.
+        </p>
       </section>
 
       <section className="mb-5 rounded-3xl bg-sage-soft p-4">
-        <h2 className="font-bold text-sage">Your data in the beta</h2>
-        <p className="mt-1 text-sm text-muted">
-          Cloud sync is not connected yet. Your diary stays on this phone and is not uploaded or backed up. The consent screen previews the planned sync flow.
-        </p>
+        <h2 className="font-bold text-sage">Not medical advice</h2>
+        <p className="mt-1 text-sm text-muted">TriggerTrack records observations. Its patterns are clues, not proof or a diagnosis.</p>
       </section>
 
       <button onClick={onStart} className="mb-2 min-h-14 w-full rounded-2xl bg-sage text-base font-bold text-white">

@@ -196,7 +196,7 @@ export default function HistoryScreen({ entries, updateEntry, deleteEntry, onNav
       {deleting && (
         <ConfirmSheet
           title="Delete this entry?"
-          body="This removes it from your history and from any synced devices."
+          body="This removes it from your history on this phone."
           confirmLabel="Delete entry"
           cancelLabel="Keep entry"
           onConfirm={confirmDelete}
