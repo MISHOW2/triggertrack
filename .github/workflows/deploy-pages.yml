@@ -3,6 +3,7 @@ name: Deploy PWA to GitHub Pages
 on:
   push:
     branches:
+      - main
       - local-only-v1
   workflow_dispatch:
 

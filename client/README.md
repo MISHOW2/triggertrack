@@ -29,7 +29,7 @@ npm run preview
 
 ## Install on a phone
 
-1. Push changes to `local-only-v1`; GitHub Actions builds and deploys `client/dist` to GitHub Pages.
+1. Push changes to `main` or `local-only-v1`; GitHub Actions builds and deploys `client/dist` to GitHub Pages.
 2. The project Pages URL is `https://mishow2.github.io/triggertrack/`. GitHub Pages must be enabled for the repository with **Settings → Pages → Build and deployment → GitHub Actions**.
 3. Open the HTTPS URL on the phone and allow the app to load once.
 4. Install it:
