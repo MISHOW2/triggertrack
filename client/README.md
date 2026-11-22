@@ -29,12 +29,13 @@ npm run preview
 
 ## Install on a phone
 
-1. Deploy the contents of `dist/` to a static host with HTTPS.
-2. Open the HTTPS URL on the phone and allow the app to load once.
-3. Install it:
+1. Push changes to `local-only-v1`; GitHub Actions builds and deploys `client/dist` to GitHub Pages.
+2. The project Pages URL is `https://mishow2.github.io/triggertrack/`. GitHub Pages must be enabled for the repository with **Settings → Pages → Build and deployment → GitHub Actions**.
+3. Open the HTTPS URL on the phone and allow the app to load once.
+4. Install it:
    - Android: Chrome menu → **Install app** or **Add to Home screen**.
    - iPhone: Safari Share menu → **Add to Home Screen**.
-4. Open the installed app and verify logging and history work, then enable airplane mode and verify the core diary still opens.
+5. Open the installed app and verify logging and history work, then enable airplane mode and verify the core diary still opens.
 
 The service worker caches the built app for offline use. The initial install requires a network connection.
 
