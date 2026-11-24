@@ -71,7 +71,6 @@ export default function App() {
             return history
           }
 
-          CapacitorApp.exitApp()
           return history
         })
       })
