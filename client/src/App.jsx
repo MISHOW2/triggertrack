@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { App as CapacitorApp } from '@capacitor/app'
 import { Settings } from 'lucide-react'
 import NavBar from './components/NavBar'
 import HomeScreen from './screens/HomeScreen'
@@ -27,6 +28,8 @@ function tabFor(view) {
 export default function App() {
   const [onboarded, setOnboarded] = useLocalStorage(KEYS.onboarded, false)
   const [view, setView] = useState(onboarded ? 'home' : 'welcome')
+  const [viewHistory, setViewHistory] = useState([])
+  const viewRef = useRef(view)
   const [firstRun, setFirstRun] = useState(!onboarded)
   const [notice, setNotice] = useState(false)
   const entries = useEntries()
@@ -45,6 +48,41 @@ export default function App() {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#121212' : '#567f5d')
   }, [theme])
 
+  useEffect(() => {
+    viewRef.current = view
+  }, [view])
+
+  useEffect(() => {
+    let handle
+
+    const setup = async () => {
+      handle = await CapacitorApp.addListener('backButton', () => {
+        setViewHistory((history) => {
+          if (history.length > 0) {
+            const previous = history[history.length - 1]
+            setView(previous)
+            setFirstRun(false)
+            return history.slice(0, -1)
+          }
+
+          if (viewRef.current !== 'home') {
+            setView('home')
+            setFirstRun(false)
+            return history
+          }
+
+          CapacitorApp.exitApp()
+          return history
+        })
+      })
+    }
+
+    setup()
+    return () => {
+      handle?.remove()
+    }
+  }, [])
+
   // Scroll to top when changing screens
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -60,6 +98,7 @@ export default function App() {
   const navigate = (next) => {
     if (!SYNC_ENABLED && next === 'sync') next = 'settings'
     if (next !== 'privacy') setFirstRun(false)
+    setViewHistory((history) => (view === next ? history : [...history, view]))
     setView(next)
   }
 
@@ -74,6 +113,7 @@ export default function App() {
   const finishWelcome = () => {
     setOnboarded(true)
     setFirstRun(false)
+    setViewHistory([])
     setView('home')
   }
 
