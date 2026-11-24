@@ -1,6 +1,8 @@
 // Fixed lists used across the app. Edit these to change what you can tag.
 
 export const SYNC_ENABLED = false
+export const FEEDBACK_EMAIL = 'TRIGGERTRACK.DEV@GMAIL.COM'
+export const APP_VERSION = __APP_VERSION__
 
 export const TRIGGER_TAGS = [
   'Coffee',
